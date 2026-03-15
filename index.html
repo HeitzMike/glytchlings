@@ -61,14 +61,15 @@
             transparent 34%
           ),
           linear-gradient(180deg, var(--bg) 0%, var(--bg-deep) 100%);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
+        display: block;
+        min-height: 100vh;
         margin: 0;
+        padding: 24px 0;
         color: var(--text);
         font-family: 'VT323', monospace;
         position: relative;
+        overflow-x: hidden;
+        overflow-y: auto;
       }
 
       body::before {
@@ -128,22 +129,25 @@
         text-transform: uppercase;
       }
 
+      .heroHeader {
+        position: relative;
+        margin-bottom: 18px;
+      }
+
       .pageTitle {
         margin: 0;
         text-align: center;
         white-space: pre;
         font-size: 18px;
-        line-height: 0.9;
+        line-height: 1;
         color: var(--text);
         text-shadow: 0 0 10px rgba(132, 255, 146, 0.16);
       }
 
       .titleBar {
-        position: relative;
         display: flex;
         align-items: flex-start;
         justify-content: center;
-        margin-bottom: 18px;
         min-height: 82px;
       }
 
@@ -384,9 +388,7 @@
       @media (max-width: 720px) {
         body {
           padding: 16px;
-          height: auto;
           min-height: 100vh;
-          align-items: flex-start;
         }
 
         .appShell {
@@ -395,27 +397,26 @@
 
         .pageTitle {
           font-size: 12px;
-          line-height: 0.86;
+          line-height: 0.94;
           overflow-x: auto;
-          overflow-y: hidden;
           padding-bottom: 4px;
         }
 
         .titleBar {
-          flex-direction: column;
-          align-items: center;
-          gap: 10px;
           min-height: 0;
           margin-bottom: 14px;
         }
 
         .titleActions {
           position: static;
+          width: 100%;
           justify-content: center;
+          padding-top: 0;
         }
 
         .tagline {
           font-size: 20px;
+          padding-bottom: 10px;
         }
 
         .toolbar {
@@ -504,8 +505,13 @@
       }
 
       @media (max-width: 520px) {
+        .heroHeader {
+          margin-bottom: 14px;
+        }
+
         .pageTitle {
           font-size: 10px;
+          line-height: 1;
         }
 
         .toolbar {
@@ -551,14 +557,17 @@
 
   <body>
     <main class="appShell">
-      <div class="titleBar">
-        <!-- prettier-ignore -->
-        <h1 class="pageTitle" aria-label="Glytchlings">&nbsp;&nbsp;____ _       _       _     _ _                 
+      <header class="heroHeader">
+        <div class="titleBar">
+          <!-- prettier-ignore -->
+          <h1 class="pageTitle" aria-label="Glytchlings">&nbsp;&nbsp;____ _       _       _     _ _                 
 &nbsp;/ ___| |_   _| |_ ___| |__ | (_)_ __   __ _ ___ 
 | |  _| | | | | __/ __| '_ \| | | '_ \ / _` / __|
 | |_| | | |_| | || (__| | | | | | | | | (_| \__ \
 &nbsp;\____|_|\__, |\__\___|_| |_|_|_|_| |_|\__, |___/
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|___/                          |___/    </h1>
+        </div>
+        <p class="tagline">seeded procedural Glytchling generator</p>
         <div class="titleActions">
           <button
             id="shareButton"
@@ -585,8 +594,7 @@
             </svg>
           </button>
         </div>
-      </div>
-      <p class="tagline">seeded procedural Glytchling generator</p>
+      </header>
       <!-- Global controls are grouped by purpose: shape seed, color seed, then
            global actions / view toggles. -->
       <section class="toolbar">
