@@ -1,0 +1,694 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Glytchlings</title>
+    <meta name="description" content="seeded procedural Glytchling generator" />
+    <meta name="theme-color" content="#061009" />
+    <link rel="icon" href="./favicon.ico" sizes="any" />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="./favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="./favicon-16x16.png"
+    />
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="./apple-touch-icon.png"
+    />
+    <link rel="manifest" href="./site.webmanifest" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=VT323&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      :root {
+        --bg: #061009;
+        --bg-deep: #020704;
+        --panel: rgba(8, 24, 14, 0.88);
+        --panel-strong: rgba(8, 29, 16, 0.94);
+        --text: #b8ffbf;
+        --text-dim: #72c57d;
+        --line: rgba(114, 197, 125, 0.24);
+        --line-strong: rgba(144, 255, 157, 0.45);
+        --button: #0b1a11;
+        --button-active: #13311d;
+        --glow: rgba(132, 255, 146, 0.14);
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      body {
+        background:
+          radial-gradient(
+            circle at top,
+            rgba(48, 119, 64, 0.18),
+            transparent 34%
+          ),
+          linear-gradient(180deg, var(--bg) 0%, var(--bg-deep) 100%);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        color: var(--text);
+        font-family: 'VT323', monospace;
+        position: relative;
+      }
+
+      body::before {
+        content: '';
+        position: fixed;
+        inset: 0;
+        background: linear-gradient(
+          to bottom,
+          rgba(132, 255, 146, 0.028) 0,
+          rgba(132, 255, 146, 0.028) 1px,
+          transparent 1px,
+          transparent 4px
+        );
+        opacity: 0.4;
+        pointer-events: none;
+      }
+
+      .appShell {
+        width: min(960px, calc(100vw - 48px));
+        margin: 0 auto;
+      }
+
+      .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 24px;
+        padding: 14px 16px;
+        border: 1px dashed var(--line-strong);
+        background: var(--panel);
+        box-shadow: inset 0 0 0 1px rgba(132, 255, 146, 0.04);
+      }
+
+      .toolbarGroup {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .toolbarGroup:last-of-type {
+        padding-right: 0;
+        margin-right: 0;
+        border-right: 0;
+      }
+
+      .toolbarSpacer {
+        flex: 1 1 auto;
+        min-width: 24px;
+      }
+
+      .toolbarLabel {
+        color: var(--text-dim);
+        font-size: 20px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      .pageTitle {
+        margin: 0;
+        text-align: center;
+        white-space: pre;
+        font-size: 18px;
+        line-height: 0.9;
+        color: var(--text);
+        text-shadow: 0 0 10px rgba(132, 255, 146, 0.16);
+      }
+
+      .titleBar {
+        position: relative;
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        margin-bottom: 18px;
+        min-height: 82px;
+      }
+
+      .titleActions {
+        position: absolute;
+        top: 0;
+        right: 0;
+        display: flex;
+        gap: 8px;
+        padding-top: 6px;
+      }
+
+      .tagline {
+        margin: 8px 0 0;
+        padding-bottom: 16px;
+        text-align: center;
+        color: var(--text-dim);
+        font-size: 24px;
+        letter-spacing: 0.06em;
+      }
+
+      .content {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 28px;
+        min-height: 320px;
+        width: 100%;
+      }
+
+      .pageFooter {
+        margin-top: 18px;
+        padding-bottom: 8px;
+        text-align: center;
+        color: var(--text-dim);
+        font-size: 22px;
+      }
+
+      .pageFooter a {
+        color: var(--text);
+        text-decoration: none;
+        border-bottom: 1px dashed var(--line);
+      }
+
+      .pageFooter a:hover {
+        border-color: var(--line-strong);
+        color: #d4ffd9;
+      }
+
+      .canvasPanel {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        max-width: 100%;
+        min-width: 260px;
+        min-height: 260px;
+        padding: 25px;
+        border: 1px dashed var(--line);
+        background: var(--panel);
+        box-shadow: inset 0 0 0 1px rgba(132, 255, 146, 0.04);
+      }
+
+      .inspector {
+        width: 350px;
+        max-width: 100%;
+        padding: 18px;
+        border: 1px dashed var(--line);
+        background: var(--panel-strong);
+        box-shadow: inset 0 0 0 1px rgba(132, 255, 146, 0.04);
+      }
+
+      .inspectorTitle {
+        margin: 0 0 8px;
+        font-size: 24px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      .traitList {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      .traitRow {
+        display: flex;
+        align-items: center;
+        min-width: 0;
+        padding: 10px;
+        border-bottom: 1px dashed var(--line);
+        cursor: pointer;
+        transition:
+          background 120ms ease,
+          border-color 120ms ease;
+      }
+
+      .traitRow:first-child {
+        border-top: 1px dashed var(--line);
+        margin-top: 20px;
+      }
+
+      .traitRow.isActive {
+        background: rgba(132, 255, 146, 0.08);
+        border-color: var(--line-strong);
+      }
+
+      .traitRow.isPinned {
+        background: rgba(132, 255, 146, 0.14);
+        border-color: var(--line-strong);
+      }
+
+      .traitMeta {
+        display: flex;
+        flex: 1 1 auto;
+        flex-direction: column;
+        padding-left: 16px;
+        padding-right: 6px;
+        gap: 16px;
+      }
+
+      .traitSummary {
+        display: flex;
+        justify-content: space-between;
+        min-width: 0;
+        gap: 8px;
+        text-transform: capitalize;
+        align-items: baseline;
+      }
+
+      .traitLabel {
+        color: var(--text-dim);
+        white-space: nowrap;
+        font-size: 22px;
+      }
+
+      .traitValue {
+        color: var(--text);
+        white-space: nowrap;
+        text-align: right;
+        flex-shrink: 0;
+      }
+
+      .traitPreview {
+        width: 72px;
+        height: 72px;
+        background: rgba(0, 0, 0, 0.36);
+        border: 1px dashed var(--line);
+        image-rendering: pixelated;
+        box-shadow: inset 0 0 16px rgba(132, 255, 146, 0.04);
+      }
+
+      canvas {
+        background: #010402;
+        border: 1px dashed var(--line-strong);
+        box-shadow: 0 0 24px rgba(132, 255, 146, 0.08);
+      }
+
+      .seedRow {
+        margin: 0 0 4px;
+        color: var(--text-dim);
+        font-size: 22px;
+      }
+
+      .seedValue {
+        color: var(--text);
+        white-space: nowrap;
+      }
+
+      .seedForm {
+        display: flex;
+        gap: 8px;
+      }
+
+      .partToggle {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        color: var(--text-dim);
+        font-size: 18px;
+        text-transform: uppercase;
+      }
+
+      .partToggle input {
+        margin: 0;
+      }
+
+      .partControls {
+        display: flex;
+        gap: 12px;
+      }
+
+      .seedInput {
+        width: 100%;
+        min-width: 0;
+        padding: 9px 10px;
+        border: 1px dashed var(--line);
+        background: rgba(0, 0, 0, 0.34);
+        color: var(--text);
+        font: inherit;
+        font-size: 24px;
+      }
+
+      .regenerateButton,
+      .seedButton {
+        padding: 9px 12px;
+        border: 1px dashed var(--line);
+        background: var(--button);
+        color: var(--text);
+        font: inherit;
+        font-size: 22px;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        cursor: pointer;
+        box-shadow: inset 0 0 0 1px rgba(132, 255, 146, 0.04);
+      }
+
+      .regenerateButton:hover,
+      .seedButton:hover {
+        background: var(--button-active);
+        border-color: var(--line-strong);
+      }
+
+      .buttonIcon {
+        display: block;
+        width: 16px;
+        height: 16px;
+        fill: currentColor;
+      }
+
+      .seedButton.isOn {
+        background: var(--button-active);
+        border-color: var(--line-strong);
+        box-shadow:
+          0 0 0 1px rgba(132, 255, 146, 0.08),
+          0 0 18px var(--glow);
+      }
+
+      @media (max-width: 720px) {
+        body {
+          padding: 16px;
+          height: auto;
+          min-height: 100vh;
+          align-items: flex-start;
+        }
+
+        .appShell {
+          width: 100%;
+        }
+
+        .pageTitle {
+          font-size: 12px;
+          line-height: 0.86;
+          overflow-x: auto;
+          overflow-y: hidden;
+          padding-bottom: 4px;
+        }
+
+        .titleBar {
+          flex-direction: column;
+          align-items: center;
+          gap: 10px;
+          min-height: 0;
+          margin-bottom: 14px;
+        }
+
+        .titleActions {
+          position: static;
+          justify-content: center;
+        }
+
+        .tagline {
+          font-size: 20px;
+        }
+
+        .toolbar {
+          gap: 10px;
+          margin-bottom: 16px;
+          padding: 12px;
+        }
+
+        .toolbarSpacer {
+          display: none;
+        }
+
+        .toolbarGroup {
+          width: 100%;
+          align-items: flex-start;
+        }
+
+        .toolbarLabel {
+          min-width: 56px;
+          font-size: 18px;
+        }
+
+        .seedForm {
+          flex: 1 1 0;
+          width: 100%;
+        }
+
+        .seedInput {
+          flex: 1 1 150px;
+          font-size: 22px;
+        }
+
+        .regenerateButton,
+        .seedButton {
+          padding: 8px 10px;
+          font-size: 20px;
+        }
+
+        .content {
+          flex-direction: column;
+          align-items: stretch;
+          gap: 16px;
+          min-height: 0;
+        }
+
+        .canvasPanel {
+          width: 100%;
+          max-width: 100%;
+          min-height: auto;
+          padding: 16px;
+          overflow-x: auto;
+        }
+
+        .inspector {
+          width: 100%;
+          max-width: 100%;
+          padding: 14px;
+        }
+
+        .traitRow {
+          padding: 8px;
+        }
+
+        .traitPreview {
+          width: 60px;
+          height: 60px;
+          flex-shrink: 0;
+        }
+
+        .traitMeta {
+          min-width: 0;
+          padding-left: 12px;
+          padding-right: 4px;
+          gap: 10px;
+        }
+
+        .traitSummary {
+          flex-wrap: wrap;
+          row-gap: 4px;
+        }
+
+        .partControls {
+          flex-wrap: wrap;
+          gap: 10px;
+        }
+      }
+
+      @media (max-width: 520px) {
+        .pageTitle {
+          font-size: 10px;
+        }
+
+        .toolbar {
+          padding: 10px;
+        }
+
+        .toolbarLabel {
+          align-self: center;
+          min-width: 48px;
+          font-size: 17px;
+        }
+
+        .seedInput {
+          flex-basis: 100%;
+          font-size: 20px;
+        }
+
+        .regenerateButton,
+        .seedButton {
+          font-size: 18px;
+        }
+
+        .canvasPanel {
+          padding: 10px;
+          overflow-x: auto;
+        }
+
+        .traitPreview {
+          width: 52px;
+          height: 52px;
+        }
+
+        .traitLabel,
+        .traitValue,
+        .seedRow,
+        .inspectorTitle,
+        .pageFooter {
+          font-size: 20px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <main class="appShell">
+      <div class="titleBar">
+        <!-- prettier-ignore -->
+        <h1 class="pageTitle" aria-label="Glytchlings">&nbsp;&nbsp;____ _       _       _     _ _                 
+&nbsp;/ ___| |_   _| |_ ___| |__ | (_)_ __   __ _ ___ 
+| |  _| | | | | __/ __| '_ \| | | '_ \ / _` / __|
+| |_| | | |_| | || (__| | | | | | | | | (_| \__ \
+&nbsp;\____|_|\__, |\__\___|_| |_|_|_|_| |_|\__, |___/
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|___/                          |___/    </h1>
+        <div class="titleActions">
+          <button
+            id="shareButton"
+            class="seedButton"
+            type="button"
+            aria-label="Copy Glytchling link"
+          >
+            <svg class="buttonIcon" viewBox="0 0 16 16" aria-hidden="true">
+              <path
+                d="M2 1h7v2H4v5H2V1zm5 3h7v11H7V4zm2 2v7h3v-2h-1V9h1V6H9z"
+              />
+            </svg>
+          </button>
+          <button
+            id="downloadButton"
+            class="seedButton"
+            type="button"
+            aria-label="Download Glytchling image"
+          >
+            <svg class="buttonIcon" viewBox="0 0 16 16" aria-hidden="true">
+              <path
+                d="M7 1h2v6h2L8 10 5 7h2V1zm-4 9h10v4H3v-4zm2 2v1h6v-1H5z"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
+      <p class="tagline">seeded procedural Glytchling generator</p>
+      <!-- Global controls are grouped by purpose: shape seed, color seed, then
+           global actions / view toggles. -->
+      <section class="toolbar">
+        <div class="toolbarGroup">
+          <span class="toolbarLabel">Shape:</span>
+          <form id="shapeSeedForm" class="seedForm">
+            <input
+              id="shapeSeedInput"
+              class="seedInput"
+              type="number"
+              step="1"
+              min="0"
+              placeholder="Shape seed"
+            />
+            <button class="seedButton" type="submit">Load</button>
+          </form>
+        </div>
+        <div class="toolbarSpacer"></div>
+        <div class="toolbarGroup">
+          <span class="toolbarLabel">Color:</span>
+          <form id="colorSeedForm" class="seedForm">
+            <input
+              id="colorSeedInput"
+              class="seedInput"
+              type="number"
+              step="1"
+              min="0"
+              placeholder="Color seed"
+            />
+            <button class="seedButton" type="submit">Load</button>
+          </form>
+        </div>
+        <div class="toolbarGroup">
+          <span class="toolbarLabel">Glytch:</span>
+          <button id="regenerateButton" class="regenerateButton">Spawn</button>
+          <button id="recolorButton" class="seedButton" type="button">
+            Color
+          </button>
+          <button id="glitchButton" class="seedButton" type="button">
+            Cºrru_pt
+          </button>
+          <button id="restoreButton" class="seedButton" type="button">
+            Restore
+          </button>
+        </div>
+        <div class="toolbarSpacer"></div>
+        <div class="toolbarGroup">
+          <span class="toolbarLabel">Toggle:</span>
+          <button id="symmetryAllButton" class="seedButton" type="button">
+            Sym
+          </button>
+          <button id="terminalModeButton" class="seedButton" type="button">
+            CRT
+          </button>
+          <button id="neckButton" class="seedButton isOn" type="button">
+            Gap
+          </button>
+          <button id="headBobButton" class="seedButton isOn" type="button">
+            Pulse
+          </button>
+          <button
+            id="pauseBobButton"
+            class="seedButton"
+            type="button"
+            aria-label="Pause head bob"
+          >
+            <svg class="buttonIcon" viewBox="0 0 16 16" aria-hidden="true">
+              <path d="M4 2h3v12H4V2zm5 0h3v12H9V2z" />
+            </svg>
+          </button>
+        </div>
+      </section>
+
+      <!-- Main content keeps the glytchling preview and inspector side-by-side so
+           the generated anatomy and its metadata can be scanned together. -->
+      <section class="content">
+        <div class="canvasPanel">
+          <canvas id="c" width="280" height="280"></canvas>
+        </div>
+        <aside class="inspector">
+          <h1 class="inspectorTitle">:> Glytchling Traits</h1>
+          <p class="seedRow">
+            Name: <span id="nameValue" class="seedValue"></span>
+          </p>
+          <p class="seedRow">
+            Shape: <span id="seedValue" class="seedValue"></span>
+          </p>
+          <p class="seedRow">
+            Color: <span id="colorSeedValue" class="seedValue"></span>
+          </p>
+
+          <ul id="traitList" class="traitList"></ul>
+        </aside>
+      </section>
+      <footer class="pageFooter">
+        developed by
+        <a href="https://github.com/HeitzMike" target="_blank" rel="noreferrer"
+          >HeitzMike</a
+        >
+      </footer>
+    </main>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
