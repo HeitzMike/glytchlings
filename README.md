@@ -87,7 +87,7 @@ Opening that link later will restore the same Glytchling and color scheme.
 - `Cºrru_pt`: adds pure chaos, randomize trait toggles and some presentation state
 - `Restore`: return the trait/presentation controls to a clean default state
 
-### Toggle
+### Mode
 
 - `Sym`: toggle symmetry on all trait parts
 - `CRT`: render the Glytchling in a terminal-style CRT view

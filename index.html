@@ -377,12 +377,116 @@
         fill: currentColor;
       }
 
+      .iconButton {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 42px;
+        min-width: 42px;
+        padding-left: 0;
+        padding-right: 0;
+      }
+
       .seedButton.isOn {
         background: var(--button-active);
         border-color: var(--line-strong);
         box-shadow:
           0 0 0 1px rgba(132, 255, 146, 0.08),
           0 0 18px var(--glow);
+      }
+
+      .helpOverlay {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        background: rgba(2, 7, 4, 0.76);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 140ms ease;
+        z-index: 10;
+      }
+
+      .helpOverlay.isOpen {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .helpModal {
+        width: min(680px, 100%);
+        max-height: min(82vh, 720px);
+        overflow-y: auto;
+        padding: 18px;
+        border: 1px dashed var(--line-strong);
+        background: var(--panel-strong);
+        box-shadow:
+          inset 0 0 0 1px rgba(132, 255, 146, 0.04),
+          0 0 24px rgba(132, 255, 146, 0.08);
+      }
+
+      .helpHeader {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+
+      .helpTitle {
+        margin: 0;
+        font-size: 24px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      .helpClose {
+        flex-shrink: 0;
+      }
+
+      .helpCopy {
+        margin: 0;
+        color: var(--text-dim);
+        font-size: 22px;
+      }
+
+      .helpSection {
+        margin-top: 16px;
+        padding-top: 14px;
+        border-top: 1px dashed var(--line);
+      }
+
+      .helpSectionTitle {
+        margin: 0 0 8px;
+        color: var(--text);
+        font-size: 22px;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+      .helpSectionSubTitle {
+        margin: 0 0 8px;
+        color: var(--text);
+        font-size: 20px;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      .helpList {
+        margin: 0;
+        padding: 0 0 8px 20px;
+        color: var(--text-dim);
+        font-size: 22px;
+      }
+
+      .helpModal code {
+        font-family: inherit;
+        font-size: 0.95em;
+        color: var(--text);
+      }
+
+      .helpList li + li {
+        margin-top: 6px;
       }
 
       @media (max-width: 720px) {
@@ -435,6 +539,7 @@
         }
 
         .toolbarLabel {
+          align-self: center;
           min-width: 56px;
           font-size: 18px;
         }
@@ -453,6 +558,14 @@
         .seedButton {
           padding: 8px 10px;
           font-size: 20px;
+        }
+
+        .helpOverlay {
+          padding: 16px;
+        }
+
+        .helpModal {
+          padding: 14px;
         }
 
         .content {
@@ -534,6 +647,13 @@
           font-size: 18px;
         }
 
+        .helpTitle,
+        .helpSectionTitle,
+        .helpCopy,
+        .helpList {
+          font-size: 20px;
+        }
+
         .canvasPanel {
           padding: 10px;
           overflow-x: auto;
@@ -570,8 +690,16 @@
         <p class="tagline">seeded procedural Glytchling generator</p>
         <div class="titleActions">
           <button
+            id="helpButton"
+            class="seedButton iconButton"
+            type="button"
+            aria-label="Open Glytchling help"
+          >
+            ?
+          </button>
+          <button
             id="shareButton"
-            class="seedButton"
+            class="seedButton iconButton"
             type="button"
             aria-label="Copy Glytchling link"
           >
@@ -583,7 +711,7 @@
           </button>
           <button
             id="downloadButton"
-            class="seedButton"
+            class="seedButton iconButton"
             type="button"
             aria-label="Download Glytchling image"
           >
@@ -642,7 +770,7 @@
         </div>
         <div class="toolbarSpacer"></div>
         <div class="toolbarGroup">
-          <span class="toolbarLabel">Toggle:</span>
+          <span class="toolbarLabel">Mode:</span>
           <button id="symmetryAllButton" class="seedButton" type="button">
             Sym
           </button>
@@ -696,6 +824,128 @@
         >
       </footer>
     </main>
+
+    <div id="helpOverlay" class="helpOverlay" aria-hidden="true">
+      <section
+        class="helpModal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="helpTitle"
+      >
+        <div class="helpHeader">
+          <h2 id="helpTitle" class="helpTitle">:> System Help</h2>
+          <button
+            id="helpCloseButton"
+            class="seedButton helpClose"
+            type="button"
+            aria-label="Close help"
+          >
+            X
+          </button>
+        </div>
+        <p class="helpCopy">
+          Glytchlings is a seeded procedural Glytchling generator. The same
+          <code>shape</code> and <code>color</code> values always recreate the
+          same result.
+        </p>
+
+        <div class="helpSection">
+          <h3 class="helpSectionTitle">[ Utility Menu ]</h3>
+          <h4 class="helpSectionSubTitle">Copy Icon</h4>
+          <ul class="helpList">
+            <li>
+              Copies a shareable URL with the current
+              <code>shape</code> and <code>color</code> seeds.
+            </li>
+          </ul>
+          <h4 class="helpSectionSubTitle">Download Icon</h4>
+          <ul class="helpList">
+            <li>Saves the current rendered Glytchling view as a PNG.</li>
+            <li>
+              Filenames use a filesystem-safe version of the Glytchling name,
+              shape seed, and color seed. Unsupported characters are replaced
+              with <code>-</code>.
+            </li>
+          </ul>
+        </div>
+
+        <div class="helpSection">
+          <h3 class="helpSectionTitle">[ Control Panel ]</h3>
+          <h4 class="helpSectionSubTitle">Shape</h4>
+          <ul class="helpList">
+            <li>
+              Enter a <code>shape</code> seed and press <code>Load</code> to
+              restore a specific Glytchling form.
+            </li>
+          </ul>
+
+          <h4 class="helpSectionSubTitle">Color</h4>
+          <ul class="helpList">
+            <li>
+              Enter a <code>color</code> seed and press <code>Load</code> to
+              restore a specific palette.
+            </li>
+          </ul>
+          <h4 class="helpSectionSubTitle">Glytch</h4>
+          <ul class="helpList">
+            <li>
+              <code>Spawn</code> generates a new Glytchling with a random shape
+              seed and color seed.
+            </li>
+            <li>
+              <code>Color</code> generates a new color palette with a random
+              seed for current Glytchling shape.
+            </li>
+            <li>
+              <code>Cºrru_pt</code> randomizes Glytchling Traits toggles and
+              some Mode settings. <code>{Can produce extreme results!}</code>
+            </li>
+            <li>
+              <code>Restore</code> returns the current Glytchling to a clean,
+              readable baseline with all parts enabled and symmetrical.
+              <code>{Use when too Cºrru_pt!}</code>
+            </li>
+          </ul>
+          <h4 class="helpSectionTitle">Mode</h4>
+          <ul class="helpList">
+            <li>
+              <code>Sym</code> toggles all Glytchling part symmetry uniformly on
+              or off.
+            </li>
+            <li>
+              <code>CRT</code> toggles Glytchling monochrome terminal render
+              mode on or off.
+            </li>
+            <li>
+              <code>Gap</code> toggles Glytchling dome/core separation on or
+              off.
+            </li>
+            <li>
+              <code>Pulse</code> toggles Glytchling idle animation on or off.
+            </li>
+            <li><code>Pause Icon</code> freezes the current pulse frame.</li>
+          </ul>
+        </div>
+
+        <div class="helpSection">
+          <h3 class="helpSectionTitle">[ Trait Panel ]</h3>
+          <ul class="helpList">
+            <li>
+              Displays current Glytchling Name, Shape Seed, and Color Seed
+            </li>
+            <li>Hover a trait to highlight it on the main Glytchling.</li>
+            <li>
+              Click a trait to pin that highlight until you click it again.
+            </li>
+            <li><code>On</code> enables or disables the part.</li>
+            <li><code>Sym</code> enables or disables the part symmetry.</li>
+            <li>
+              <code>Flip</code> swaps the side used when a part is asymmetrical.
+            </li>
+          </ul>
+        </div>
+      </section>
+    </div>
 
     <script type="module" src="./app.js"></script>
   </body>

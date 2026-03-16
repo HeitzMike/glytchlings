@@ -18,10 +18,13 @@ const canvas = document.getElementById('c');
 const ctx = canvas.getContext('2d');
 const regenerateButton = document.getElementById('regenerateButton');
 const recolorButton = document.getElementById('recolorButton');
+const helpButton = document.getElementById('helpButton');
 const shareButton = document.getElementById('shareButton');
 const downloadButton = document.getElementById('downloadButton');
 const glitchButton = document.getElementById('glitchButton');
 const restoreButton = document.getElementById('restoreButton');
+const helpOverlay = document.getElementById('helpOverlay');
+const helpCloseButton = document.getElementById('helpCloseButton');
 const shapeSeedForm = document.getElementById('shapeSeedForm');
 const colorSeedForm = document.getElementById('colorSeedForm');
 const shapeSeedInput = document.getElementById('shapeSeedInput');
@@ -98,6 +101,11 @@ function flashButtonContent(button, nextContent, timeout = 1400) {
   window.setTimeout(() => {
     button.innerHTML = previousContent;
   }, timeout);
+}
+
+function setHelpOpen(isOpen) {
+  helpOverlay.classList.toggle('isOpen', isOpen);
+  helpOverlay.setAttribute('aria-hidden', String(!isOpen));
 }
 
 async function copyTextToClipboard(text) {
@@ -699,12 +707,23 @@ traitList.addEventListener('click', (event) => {
 // - Recolor rolls only the palette
 // - shape/color forms load explicit seeds
 // - the presentation buttons update only the renderer, not the generator
+helpButton.addEventListener('click', () => {
+  setHelpOpen(true);
+});
 regenerateButton.addEventListener('click', regenerateGlytchling);
 recolorButton.addEventListener('click', recolorGlytchling);
 shareButton.addEventListener('click', copyGlytchlingLink);
 downloadButton.addEventListener('click', downloadGlytchlingImage);
 glitchButton.addEventListener('click', glitchGlytchlingOptions);
 restoreButton.addEventListener('click', restoreGlytchlingOptions);
+helpCloseButton.addEventListener('click', () => {
+  setHelpOpen(false);
+});
+helpOverlay.addEventListener('click', (event) => {
+  if (event.target === helpOverlay) {
+    setHelpOpen(false);
+  }
+});
 symmetryAllButton.addEventListener('click', () => {
   const nextValue = !Object.values(symmetricAttributes).every(Boolean);
   symmetricAttributes = Object.fromEntries(
@@ -776,6 +795,11 @@ traitList.addEventListener('change', (event) => {
     [flipToggle.dataset.partFlip]: flipToggle.checked,
   };
   setGlytchlingSeed(seed);
+});
+window.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && helpOverlay.classList.contains('isOpen')) {
+    setHelpOpen(false);
+  }
 });
 renderPartInspector(seed, glytchling);
 syncPresentationButtons();
