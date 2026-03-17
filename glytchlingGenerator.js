@@ -38,7 +38,8 @@ function buildSectionHalf(seed, rowCount, offset, getFillChance) {
     const half = [];
 
     for (let x = 0; x < WIDTH / 2; x++) {
-      const filled = random(seed, offset + y * 10 + x) < getFillChance(y, x) ? 1 : 0;
+      const filled =
+        random(seed, offset + y * 10 + x) < getFillChance(y, x) ? 1 : 0;
       half.push(filled);
       filledCells += filled;
     }
@@ -113,18 +114,20 @@ function generateDome(grid, partMask, seed, symmetric = true, flipped = false) {
         filledCells: leftHalf.filledCells,
       }
     : buildSectionHalf(seed, DOME_HEIGHT, 100, fillChanceForRow);
-  const rightHalf = flipped && !symmetric
-    ? {
-        rows: leftHalf.rows.map((row) => row.slice().reverse()),
-        filledCells: leftHalf.filledCells,
-      }
-    : generatedRightHalf;
-  const finalLeftHalf = flipped && !symmetric
-    ? {
-        rows: generatedRightHalf.rows.map((row) => row.slice().reverse()),
-        filledCells: generatedRightHalf.filledCells,
-      }
-    : leftHalf;
+  const rightHalf =
+    flipped && !symmetric
+      ? {
+          rows: leftHalf.rows.map((row) => row.slice().reverse()),
+          filledCells: leftHalf.filledCells,
+        }
+      : generatedRightHalf;
+  const finalLeftHalf =
+    flipped && !symmetric
+      ? {
+          rows: generatedRightHalf.rows.map((row) => row.slice().reverse()),
+          filledCells: generatedRightHalf.filledCells,
+        }
+      : leftHalf;
 
   applySectionRows(grid, partMask, 0, finalLeftHalf.rows, rightHalf.rows);
 
@@ -158,18 +161,20 @@ function generateCore(grid, partMask, seed, symmetric = true, flipped = false) {
         filledCells: leftHalf.filledCells,
       }
     : buildSectionHalf(seed, CORE_HEIGHT, 300, fillChanceForRow);
-  const rightHalf = flipped && !symmetric
-    ? {
-        rows: leftHalf.rows.map((row) => row.slice().reverse()),
-        filledCells: leftHalf.filledCells,
-      }
-    : generatedRightHalf;
-  const finalLeftHalf = flipped && !symmetric
-    ? {
-        rows: generatedRightHalf.rows.map((row) => row.slice().reverse()),
-        filledCells: generatedRightHalf.filledCells,
-      }
-    : leftHalf;
+  const rightHalf =
+    flipped && !symmetric
+      ? {
+          rows: leftHalf.rows.map((row) => row.slice().reverse()),
+          filledCells: leftHalf.filledCells,
+        }
+      : generatedRightHalf;
+  const finalLeftHalf =
+    flipped && !symmetric
+      ? {
+          rows: generatedRightHalf.rows.map((row) => row.slice().reverse()),
+          filledCells: generatedRightHalf.filledCells,
+        }
+      : leftHalf;
 
   applySectionRows(grid, partMask, startY, finalLeftHalf.rows, rightHalf.rows);
 
@@ -212,9 +217,7 @@ function generateNodeCells(seed, baseX, offset) {
     );
 
   if (fullBlock) {
-    return uniqueNodeCells.filter(
-      ([x, y]) => !(x === baseX + 1 && y === 1),
-    );
+    return uniqueNodeCells.filter(([x, y]) => !(x === baseX + 1 && y === 1));
   }
 
   return uniqueNodeCells;
@@ -232,12 +235,14 @@ function addNode(grid, partMask, seed, symmetric = true, flipped = false) {
   const generatedRightCells = symmetric
     ? leftCells.map(([x, y]) => [oppositeX(x), y])
     : generateNodeCells(seed, rightBaseX, 100);
-  const rightCells = flipped && !symmetric
-    ? leftCells.map(([x, y]) => [oppositeX(x), y])
-    : generatedRightCells;
-  const finalLeftCells = flipped && !symmetric
-    ? generatedRightCells.map(([x, y]) => [oppositeX(x), y])
-    : leftCells;
+  const rightCells =
+    flipped && !symmetric
+      ? leftCells.map(([x, y]) => [oppositeX(x), y])
+      : generatedRightCells;
+  const finalLeftCells =
+    flipped && !symmetric
+      ? generatedRightCells.map(([x, y]) => [oppositeX(x), y])
+      : leftCells;
   const uniqueNodeCells = uniqueCells([...finalLeftCells, ...rightCells]);
   drawCells(grid, partMask, uniqueNodeCells);
 
@@ -275,9 +280,7 @@ function generateBitCells(seed, baseX, offset) {
     );
 
   if (fullBlock) {
-    return uniqueBitCells.filter(
-      ([x, y]) => !(x === baseX + 1 && y === 1),
-    );
+    return uniqueBitCells.filter(([x, y]) => !(x === baseX + 1 && y === 1));
   }
 
   return uniqueBitCells;
@@ -291,12 +294,14 @@ function addBits(grid, partMask, seed, symmetric = true, flipped = false) {
   const generatedRightCells = symmetric
     ? leftCells.map(([x, y]) => [oppositeX(x), y])
     : generateBitCells(seed, rightBaseX, 100);
-  const rightCells = flipped && !symmetric
-    ? leftCells.map(([x, y]) => [oppositeX(x), y])
-    : generatedRightCells;
-  const finalLeftCells = flipped && !symmetric
-    ? generatedRightCells.map(([x, y]) => [oppositeX(x), y])
-    : leftCells;
+  const rightCells =
+    flipped && !symmetric
+      ? leftCells.map(([x, y]) => [oppositeX(x), y])
+      : generatedRightCells;
+  const finalLeftCells =
+    flipped && !symmetric
+      ? generatedRightCells.map(([x, y]) => [oppositeX(x), y])
+      : leftCells;
   const uniqueBitCells = uniqueCells([...finalLeftCells, ...rightCells]);
   drawCells(grid, partMask, uniqueBitCells);
 
@@ -338,7 +343,9 @@ function generateDigitZoneCells(seed, baseX, offset) {
     uniqueDigitCells.length >= 9 &&
     [0, 1, 2].every((localY) =>
       [0, 1, 2].every((localX) =>
-        uniqueDigitCells.some(([x, y]) => x === baseX + localX && y === baseY + localY),
+        uniqueDigitCells.some(
+          ([x, y]) => x === baseX + localX && y === baseY + localY,
+        ),
       ),
     );
 
@@ -373,20 +380,29 @@ function addDigits(grid, partMask, seed, symmetric = true, flipped = false) {
         visibleCells: leftDigits.visibleCells,
       }
     : generateDigitSide(seed, 100, true);
-  const rightDigits = flipped && !symmetric
-    ? {
-        cells: leftDigits.cells.map(([x, rowY]) => [oppositeX(x), rowY]),
-        visibleCells: leftDigits.visibleCells,
-      }
-    : generatedRightDigits;
-  const finalLeftDigits = flipped && !symmetric
-    ? {
-        cells: generatedRightDigits.cells.map(([x, rowY]) => [oppositeX(x), rowY]),
-        visibleCells: generatedRightDigits.visibleCells,
-      }
-    : leftDigits;
+  const rightDigits =
+    flipped && !symmetric
+      ? {
+          cells: leftDigits.cells.map(([x, rowY]) => [oppositeX(x), rowY]),
+          visibleCells: leftDigits.visibleCells,
+        }
+      : generatedRightDigits;
+  const finalLeftDigits =
+    flipped && !symmetric
+      ? {
+          cells: generatedRightDigits.cells.map(([x, rowY]) => [
+            oppositeX(x),
+            rowY,
+          ]),
+          visibleCells: generatedRightDigits.visibleCells,
+        }
+      : leftDigits;
 
-  drawCells(grid, partMask, uniqueCells([...finalLeftDigits.cells, ...rightDigits.cells]));
+  drawCells(
+    grid,
+    partMask,
+    uniqueCells([...finalLeftDigits.cells, ...rightDigits.cells]),
+  );
 
   return symmetric
     ? classifySize(leftDigits.visibleCells, possibleCells)
@@ -427,7 +443,9 @@ function generateTreadZoneCells(seed, baseX, offset) {
     uniqueTreadCells.length === 6 &&
     [0, 1, 2].every((localY) =>
       [0, 1].every((localX) =>
-        uniqueTreadCells.some(([x, y]) => x === baseX + localX && y === baseY + localY),
+        uniqueTreadCells.some(
+          ([x, y]) => x === baseX + localX && y === baseY + localY,
+        ),
       ),
     );
 
@@ -470,20 +488,29 @@ function addTreads(grid, partMask, seed, symmetric = true, flipped = false) {
         visibleCells: leftTreads.visibleCells,
       }
     : generateTreadSide(seed, 100, true);
-  const rightTreads = flipped && !symmetric
-    ? {
-        cells: leftTreads.cells.map(([x, rowY]) => [oppositeX(x), rowY]),
-        visibleCells: leftTreads.visibleCells,
-      }
-    : generatedRightTreads;
-  const finalLeftTreads = flipped && !symmetric
-    ? {
-        cells: generatedRightTreads.cells.map(([x, rowY]) => [oppositeX(x), rowY]),
-        visibleCells: generatedRightTreads.visibleCells,
-      }
-    : leftTreads;
+  const rightTreads =
+    flipped && !symmetric
+      ? {
+          cells: leftTreads.cells.map(([x, rowY]) => [oppositeX(x), rowY]),
+          visibleCells: leftTreads.visibleCells,
+        }
+      : generatedRightTreads;
+  const finalLeftTreads =
+    flipped && !symmetric
+      ? {
+          cells: generatedRightTreads.cells.map(([x, rowY]) => [
+            oppositeX(x),
+            rowY,
+          ]),
+          visibleCells: generatedRightTreads.visibleCells,
+        }
+      : leftTreads;
 
-  drawCells(grid, partMask, uniqueCells([...finalLeftTreads.cells, ...rightTreads.cells]));
+  drawCells(
+    grid,
+    partMask,
+    uniqueCells([...finalLeftTreads.cells, ...rightTreads.cells]),
+  );
 
   return symmetric
     ? classifySize(leftTreads.visibleCells, possibleCells)
@@ -534,25 +561,155 @@ function pickFrom(seed, offset, values) {
 // a few optional "glitch" mutations so a saved seed always gets the same label.
 function generateName(seed) {
   const prefixes = [
-    'gly', 'vex', 'nul', 'zir', 'hex', 'morl', 'cryp', 'tek', 'wyr', 'skel',
-    'dra', 'vel', 'synth', 'brim', 'thal', 'nyx', 'quor', 'grim', 'volt', 'carr',
-    'ash', 'kry', 'obel', 'murk', 'zen', 'plex', 'shiv', 'thorn', 'flux', 'cor',
+    'ace',
+    'ash',
+    'axe',
+    'bit',
+    'boot',
+    'brain',
+    'brim',
+    'carr',
+    'cor',
+    'cry',
+    'del',
+    'dra',
+    'ego',
+    'ent',
+    'eva',
+    'fiz',
+    'fly',
+    'flux',
+    'gly',
+    'gor',
+    'gra',
+    'grim',
+    'hell',
+    'hex',
+    'hit',
+    'iso',
+    'init',
+    'kra',
+    'kry',
+    'morl',
+    'murk',
+    'neo',
+    'nyx',
+    'null',
+    'obel',
+    'omit',
+    'over',
+    'plex',
+    'pry',
+    'quor',
+    'rawr',
+    'rym',
+    'shiv',
+    'skel',
+    'synth',
+    'tek',
+    'thal',
+    'thorn',
+    'trex',
+    'ultra',
+    'vel',
+    'vex',
+    'void',
+    'volt',
+    'whir',
+    'wyr',
+    'zap',
+    'zen',
+    'zir',
+    'zyr',
   ];
   const cores = [
-    'tch', 'lith', 'vox', 'morph', 'shard', 'grim', 'byte', 'rift', 'drift', 'pulse',
-    'glow', 'spine', 'crypt', 'mire', 'scar', 'node', 'whisp', 'fract', 'blink', 'gloom',
-    'coil', 'screech', 'hush', 'glint', 'strain', 'veil', 'spark', 'thrum', 'crawl', 'weld',
+    'algo',
+    'beast',
+    'blink',
+    'byte',
+    'coil',
+    'crawl',
+    'crypt',
+    'drift',
+    'energy',
+    'error',
+    'fract',
+    'ghost',
+    'glint',
+    'glow',
+    'gloom',
+    'grim',
+    'hush',
+    'hum',
+    'glint',
+    'lith',
+    'matrix',
+    'mire',
+    'morph',
+    'node',
+    'pulse',
+    'rift',
+    'scar',
+    'screech',
+    'shard',
+    'spark',
+    'spine',
+    'strain',
+    'ternal',
+    'thrum',
+    'tick',
+    'veil',
+    'vox',
+    'weld',
+    'whisp',
   ];
   const suffixes = [
-    'ling', 'oid', 'rite', 'mote', 'spawn', 'kin', 'wisp', 'form', 'shade', 'spark',
-    'drone', 'husk', 'shell', 'bloom', 'mark', 'wake', 'ghost', 'phase', 'snare', 'trace',
-    'gleam', 'coil', 'shiver', 'crest', 'mire', 'thing', 'crawl', 'echo', 'brand', 'weft',
+    '.exe,',
+    '.glytch',
+    '.trmnl',
+    '.zip',
+    'bloom',
+    'brand',
+    'coil',
+    'crest',
+    'crawl',
+    'drone',
+    'echo',
+    'ete',
+    'form',
+    'gleam',
+    'gon',
+    'husk',
+    'ian',
+    'kin',
+    'lex',
+    'ling',
+    'mark',
+    'mire',
+    'mote',
+    'oid',
+    'phase',
+    'rite',
+    'shade',
+    'shell',
+    'shiver',
+    'snare',
+    'spawn',
+    'spark',
+    'tch',
+    'thing',
+    'trace',
+    'wake',
+    'weft',
+    'wisp',
+    'zzzt',
   ];
 
   let name = `${pickFrom(seed, 900, prefixes)}${pickFrom(seed, 901, cores)}${pickFrom(seed, 902, suffixes)}`;
 
   if (random(seed, 903) > 0.75) {
-    const index = 1 + Math.floor(random(seed, 904) * Math.max(1, name.length - 2));
+    const index =
+      1 + Math.floor(random(seed, 904) * Math.max(1, name.length - 2));
     name = `${name.slice(0, index)}${name[index]}${name.slice(index)}`;
   }
 
@@ -584,7 +741,14 @@ function generateName(seed) {
     y: '`/',
     z: '2',
   };
-  const mutationCount = random(seed, 905) > 0.84 ? 3 : random(seed, 905) > 0.52 ? 2 : random(seed, 905) > 0.22 ? 1 : 0;
+  const mutationCount =
+    random(seed, 905) > 0.84
+      ? 3
+      : random(seed, 905) > 0.52
+        ? 2
+        : random(seed, 905) > 0.22
+          ? 1
+          : 0;
 
   for (let i = 0; i < mutationCount; i++) {
     const index = Math.floor(random(seed, 906 + i) * name.length);
@@ -632,17 +796,35 @@ export function generateGlytchling(seed, options = {}) {
   const parts = createPartMasks();
 
   const dome = enabledAttributes.dome
-    ? generateDome(grid, parts.dome, seed, symmetricAttributes.dome, flippedAttributes.dome)
+    ? generateDome(
+        grid,
+        parts.dome,
+        seed,
+        symmetricAttributes.dome,
+        flippedAttributes.dome,
+      )
     : 'off';
   const core = enabledAttributes.core
-    ? generateCore(grid, parts.core, seed, symmetricAttributes.core, flippedAttributes.core)
+    ? generateCore(
+        grid,
+        parts.core,
+        seed,
+        symmetricAttributes.core,
+        flippedAttributes.core,
+      )
     : 'off';
 
   const traits = {
     dome,
     core,
     node: enabledAttributes.node
-      ? addNode(grid, parts.node, seed, symmetricAttributes.node, flippedAttributes.node)
+      ? addNode(
+          grid,
+          parts.node,
+          seed,
+          symmetricAttributes.node,
+          flippedAttributes.node,
+        )
       : 'off',
     bits: enabledAttributes.bits
       ? addBits(
@@ -654,10 +836,22 @@ export function generateGlytchling(seed, options = {}) {
         )
       : 'off',
     digits: enabledAttributes.digits
-      ? addDigits(grid, parts.digits, seed, symmetricAttributes.digits, flippedAttributes.digits)
+      ? addDigits(
+          grid,
+          parts.digits,
+          seed,
+          symmetricAttributes.digits,
+          flippedAttributes.digits,
+        )
       : 'off',
     treads: enabledAttributes.treads
-      ? addTreads(grid, parts.treads, seed, symmetricAttributes.treads, flippedAttributes.treads)
+      ? addTreads(
+          grid,
+          parts.treads,
+          seed,
+          symmetricAttributes.treads,
+          flippedAttributes.treads,
+        )
       : 'off',
   };
 
