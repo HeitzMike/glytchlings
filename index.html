@@ -123,6 +123,7 @@
       }
 
       .toolbarLabel {
+        align-self: center;
         color: var(--text-dim);
         font-size: 20px;
         letter-spacing: 0.06em;
@@ -190,11 +191,6 @@
         color: var(--text);
         text-decoration: none;
         border-bottom: 1px dashed var(--line);
-      }
-
-      .pageFooter a:hover {
-        border-color: var(--line-strong);
-        color: #d4ffd9;
       }
 
       .canvasPanel {
@@ -270,7 +266,6 @@
 
       .traitSummary {
         display: flex;
-        justify-content: space-between;
         min-width: 0;
         gap: 8px;
         text-transform: capitalize;
@@ -286,7 +281,6 @@
       .traitValue {
         color: var(--text);
         white-space: nowrap;
-        text-align: right;
         flex-shrink: 0;
       }
 
@@ -332,6 +326,34 @@
 
       .partToggle input {
         margin: 0;
+        appearance: none;
+        -webkit-appearance: none;
+        width: 14px;
+        height: 14px;
+        border: 1px solid var(--line-strong);
+        background: rgba(0, 0, 0, 0.5);
+        box-shadow: inset 0 0 0 1px rgba(132, 255, 146, 0.04);
+        cursor: pointer;
+        flex-shrink: 0;
+      }
+
+      .partToggle input:checked {
+        background:
+          radial-gradient(
+            circle,
+            rgba(132, 255, 146, 0.52) 0%,
+            rgba(132, 255, 146, 0.24) 58%,
+            rgba(0, 0, 0, 0.08) 100%
+          ),
+          rgba(0, 0, 0, 0.5);
+        box-shadow:
+          inset 0 0 0 1px rgba(132, 255, 146, 0.26),
+          0 0 10px rgba(132, 255, 146, 0.22);
+      }
+
+      .partToggle input:focus-visible {
+        outline: 1px solid rgba(184, 255, 191, 0.75);
+        outline-offset: 2px;
       }
 
       .partControls {
@@ -364,12 +386,6 @@
         box-shadow: inset 0 0 0 1px rgba(132, 255, 146, 0.04);
       }
 
-      .regenerateButton:hover,
-      .seedButton:hover {
-        background: var(--button-active);
-        border-color: var(--line-strong);
-      }
-
       .buttonIcon {
         display: block;
         width: 16px;
@@ -393,6 +409,33 @@
         box-shadow:
           0 0 0 1px rgba(132, 255, 146, 0.08),
           0 0 18px var(--glow);
+      }
+
+      @media (max-width: 848px) and (min-width: 721px) {
+        .toolbarSpacer {
+          display: none;
+        }
+
+        .seedToolbarGroup {
+          width: 100%;
+          align-items: flex-start;
+        }
+
+        .seedToolbarGroup .seedForm {
+          flex: 1 1 0;
+          width: 100%;
+        }
+
+        .inspectorTitle,
+        .seedRow,
+        .traitLabel,
+        .traitValue {
+          font-size: 21px;
+        }
+
+        .partToggle {
+          font-size: 17px;
+        }
       }
 
       .helpOverlay {
@@ -443,6 +486,7 @@
 
       .helpClose {
         flex-shrink: 0;
+        padding: 0 5px 0 5px;
       }
 
       .helpCopy {
@@ -472,6 +516,17 @@
         text-transform: uppercase;
       }
 
+      .helpRepoLink {
+        color: var(--text);
+        text-decoration: none;
+        border-bottom: 1px dashed var(--line);
+      }
+
+      .helpRepoLink:hover {
+        border-color: var(--line-strong);
+        color: #d4ffd9;
+      }
+
       .helpList {
         margin: 0;
         padding: 0 0 8px 20px;
@@ -487,6 +542,24 @@
 
       .helpList li + li {
         margin-top: 6px;
+      }
+
+      @media (hover: hover) and (pointer: fine) {
+        .pageFooter a:hover {
+          border-color: var(--line-strong);
+          color: #d4ffd9;
+        }
+
+        .regenerateButton:hover,
+        .seedButton:hover {
+          background: var(--button-active);
+          border-color: var(--line-strong);
+        }
+
+        .traitRow:hover {
+          background: rgba(132, 255, 146, 0.08);
+          border-color: var(--line-strong);
+        }
       }
 
       @media (max-width: 720px) {
@@ -615,6 +688,18 @@
           flex-wrap: wrap;
           gap: 10px;
         }
+
+        .inspectorTitle,
+        .seedRow,
+        .traitLabel,
+        .traitValue,
+        .pageFooter {
+          font-size: 21px;
+        }
+
+        .partToggle {
+          font-size: 17px;
+        }
       }
 
       @media (max-width: 520px) {
@@ -671,6 +756,95 @@
         .pageFooter {
           font-size: 20px;
         }
+
+        .partToggle {
+          font-size: 16px;
+        }
+      }
+
+      @media (max-width: 426px) {
+        .regenerateButton,
+        .seedButton {
+          padding: 8px 10px;
+          font-size: 16px;
+        }
+
+        .iconButton {
+          width: 34px;
+          min-width: 34px;
+        }
+
+        .toolbar {
+          gap: 8px;
+        }
+
+        .toolbarGroup {
+          gap: 6px;
+        }
+
+        .toolbarLabel {
+          align-self: center;
+          min-width: 42px;
+          font-size: 15px;
+        }
+
+        .seedInput {
+          font-size: 18px;
+        }
+
+        .inspectorTitle,
+        .seedRow,
+        .traitLabel,
+        .traitValue,
+        .pageFooter {
+          font-size: 18px;
+        }
+
+        .partToggle {
+          font-size: 14px;
+        }
+      }
+      @media (max-width: 390px) {
+        .regenerateButton,
+        .seedButton {
+          padding: 8px 3px;
+          font-size: 14px;
+        }
+
+        .iconButton {
+          width: 34px;
+          min-width: 34px;
+        }
+
+        .toolbar {
+          gap: 8px;
+        }
+
+        .toolbarGroup {
+          gap: 6px;
+        }
+
+        .toolbarLabel {
+          align-self: center;
+          min-width: 42px;
+          font-size: 15px;
+        }
+
+        .seedInput {
+          font-size: 18px;
+        }
+
+        .inspectorTitle,
+        .seedRow,
+        .traitLabel,
+        .traitValue,
+        .pageFooter {
+          font-size: 17px;
+        }
+
+        .partToggle {
+          font-size: 13px;
+        }
       }
     </style>
   </head>
@@ -726,7 +900,7 @@
       <!-- Global controls are grouped by purpose: shape seed, color seed, then
            global actions / view toggles. -->
       <section class="toolbar">
-        <div class="toolbarGroup">
+        <div class="toolbarGroup seedToolbarGroup">
           <span class="toolbarLabel">Shape:</span>
           <form id="shapeSeedForm" class="seedForm">
             <input
@@ -741,7 +915,7 @@
           </form>
         </div>
         <div class="toolbarSpacer"></div>
-        <div class="toolbarGroup">
+        <div class="toolbarGroup seedToolbarGroup">
           <span class="toolbarLabel">Color:</span>
           <form id="colorSeedForm" class="seedForm">
             <input
@@ -836,7 +1010,7 @@
           <h2 id="helpTitle" class="helpTitle">:> System Help</h2>
           <button
             id="helpCloseButton"
-            class="seedButton helpClose"
+            class="seedButton iconButton helpClose"
             type="button"
             aria-label="Close help"
           >
@@ -943,6 +1117,19 @@
               <code>Flip</code> swaps the side used when a part is asymmetrical.
             </li>
           </ul>
+        </div>
+
+        <div class="helpSection">
+          <h3 class="helpSectionTitle">[ Source ]</h3>
+          <p class="helpCopy">
+            <a
+              class="helpRepoLink"
+              href="https://github.com/HeitzMike/glytchlings"
+              target="_blank"
+              rel="noreferrer"
+              >Check out the GitHub repo :D</a
+            >
+          </p>
         </div>
       </section>
     </div>
