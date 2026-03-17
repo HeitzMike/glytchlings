@@ -239,8 +239,16 @@
         box-shadow: inset 0 0 0 1px rgba(132, 255, 146, 0.04);
       }
 
+      .inspectorHeader {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 8px;
+      }
+
       .inspectorTitle {
-        margin: 0 0 8px;
+        margin: 0;
         font-size: 24px;
         letter-spacing: 0.06em;
         text-transform: uppercase;
@@ -550,6 +558,86 @@
         color: #d4ffd9;
       }
 
+      .favoritesHeaderActions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .favoritesList {
+        list-style: none;
+        margin: 16px 0 0;
+        padding: 0;
+        max-height: 420px;
+        overflow-y: auto;
+      }
+
+      .favoriteItem + .favoriteItem {
+        margin-top: 10px;
+      }
+
+      .favoriteRow {
+        display: flex;
+        align-items: stretch;
+        gap: 10px;
+      }
+
+      .favoriteLoad {
+        display: flex;
+        flex: 1 1 auto;
+        align-items: center;
+        gap: 12px;
+        min-width: 0;
+        padding: 10px;
+        border: 1px dashed var(--line);
+        background: rgba(0, 0, 0, 0.24);
+        color: inherit;
+        font: inherit;
+        text-align: left;
+        cursor: pointer;
+      }
+
+      .favoriteLoad.isCurrent {
+        border-color: var(--line-strong);
+        background: rgba(132, 255, 146, 0.08);
+      }
+
+      .favoriteThumb {
+        width: 70px;
+        height: 70px;
+        flex-shrink: 0;
+        object-fit: contain;
+        image-rendering: pixelated;
+        border: 1px dashed var(--line);
+        background: rgba(0, 0, 0, 0.36);
+        box-shadow: inset 0 0 16px rgba(132, 255, 146, 0.04);
+      }
+
+      .favoriteMeta {
+        display: flex;
+        flex: 1 1 auto;
+        flex-direction: column;
+        min-width: 0;
+      }
+
+      .favoriteName {
+        color: var(--text);
+        font-size: 22px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .favoriteSeeds,
+      .favoriteSavedAt {
+        color: var(--text-dim);
+        font-size: 20px;
+      }
+
+      .favoritesEmpty {
+        margin-top: 16px;
+      }
+
       .helpList {
         margin: 0;
         padding: 0 0 8px 20px;
@@ -571,6 +659,11 @@
         .pageFooter a:hover {
           border-color: var(--line-strong);
           color: #d4ffd9;
+        }
+
+        .favoriteLoad:hover {
+          background: rgba(132, 255, 146, 0.08);
+          border-color: var(--line-strong);
         }
 
         .regenerateButton:hover,
@@ -758,7 +851,10 @@
         .helpTitle,
         .helpSectionTitle,
         .helpCopy,
-        .helpList {
+        .helpList,
+        .favoriteName,
+        .favoriteSeeds,
+        .favoriteSavedAt {
           font-size: 20px;
         }
 
@@ -782,6 +878,20 @@
 
         .partToggle {
           font-size: 16px;
+        }
+
+        .favoriteRow {
+          gap: 8px;
+        }
+
+        .favoriteLoad {
+          gap: 10px;
+          padding: 8px;
+        }
+
+        .favoriteThumb {
+          width: 60px;
+          height: 60px;
         }
       }
 
@@ -826,6 +936,22 @@
         .partToggle {
           font-size: 14px;
         }
+
+        .favoriteName,
+        .favoriteSeeds,
+        .favoriteSavedAt {
+          font-size: 18px;
+        }
+
+        .titleActions .seedButton {
+          padding: 8px 10px;
+          font-size: 18px;
+        }
+
+        .titleActions .iconButton {
+          width: 42px;
+          min-width: 42px;
+        }
       }
       @media (max-width: 390px) {
         .regenerateButton,
@@ -868,6 +994,39 @@
         .partToggle {
           font-size: 13px;
         }
+
+        .favoritesHeaderActions .seedButton:not(.iconButton) {
+          font-size: 12px;
+          padding-left: 8px;
+          padding-right: 8px;
+        }
+
+        .favoriteThumb {
+          width: 52px;
+          height: 52px;
+        }
+
+        .favoriteName,
+        .favoriteSeeds,
+        .favoriteSavedAt {
+          font-size: 17px;
+        }
+
+        .titleActions .seedButton {
+          padding: 8px 10px;
+          font-size: 18px;
+        }
+
+        .titleActions .iconButton {
+          width: 42px;
+          min-width: 42px;
+        }
+      }
+
+      @media (max-width: 330px) {
+        .favoritesModal .helpTitle {
+          font-size: 16px;
+        }
       }
     </style>
   </head>
@@ -895,6 +1054,17 @@
           >
             ?
           </button>
+          <button
+            id="favoritesButton"
+            class="seedButton iconButton"
+            type="button"
+            aria-label="Open Glytchling favorites"
+          >
+            <svg class="buttonIcon" viewBox="0 0 16 16" aria-hidden="true">
+              <path d="M3 1h10v14l-5-3-5 3V1zm2 2v8.5l3-1.8 3 1.8V3H5z" />
+            </svg>
+          </button>
+
           <button
             id="shareButton"
             class="seedButton iconButton"
@@ -1001,7 +1171,19 @@
           <canvas id="c" width="280" height="280"></canvas>
         </div>
         <aside class="inspector">
-          <h1 class="inspectorTitle">:> Glytchling Traits</h1>
+          <div class="inspectorHeader">
+            <h1 class="inspectorTitle">:> Glytchling Traits</h1>
+            <button
+              id="inspectorFavoriteButton"
+              class="seedButton iconButton"
+              type="button"
+              aria-label="Save current Glytchling to specimen log"
+            >
+              <svg class="buttonIcon" viewBox="0 0 16 16" aria-hidden="true">
+                <path d="M3 1h10v14l-5-3-5 3V1zm2 2v8.5l3-1.8 3 1.8V3H5z" />
+              </svg>
+            </button>
+          </div>
           <p class="seedRow">
             Name: <span id="nameValue" class="seedValue"></span>
           </p>
@@ -1022,6 +1204,36 @@
         >
       </footer>
     </main>
+
+    <div id="favoritesOverlay" class="helpOverlay" aria-hidden="true">
+      <section
+        class="helpModal favoritesModal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="favoritesTitle"
+      >
+        <div class="helpHeader">
+          <h2 id="favoritesTitle" class="helpTitle">:> Specimen Log</h2>
+          <div class="favoritesHeaderActions">
+            <button id="favoritesSaveButton" class="seedButton" type="button">
+              Add Current
+            </button>
+            <button
+              id="favoritesCloseButton"
+              class="seedButton iconButton helpClose"
+              type="button"
+              aria-label="Close favorites"
+            >
+              X
+            </button>
+          </div>
+        </div>
+        <p id="favoritesEmpty" class="helpCopy favoritesEmpty">
+          Add a Glytchling to start your log.
+        </p>
+        <ul id="favoritesList" class="favoritesList"></ul>
+      </section>
+    </div>
 
     <div id="helpOverlay" class="helpOverlay" aria-hidden="true">
       <section
@@ -1049,11 +1261,33 @@
 
         <div class="helpSection">
           <h3 class="helpSectionTitle">[ Utility Menu ]</h3>
+          <h4 class="helpSectionSubTitle">Help Icon</h4>
+          <ul class="helpList">
+            <li>Opens the System Help menu.</li>
+          </ul>
+          <h4 class="helpSectionSubTitle">Bookmark Icon</h4>
+          <ul class="helpList">
+            <li>Opens the Specimen Log.</li>
+            <li>
+              <code>Add Current</code> adds the current Glytchling shape, color,
+              trait toggles, and mode settings to the log.
+            </li>
+            <li>
+              Select a saved Glytchling from the log to load it into the app.
+            </li>
+            <li>
+              <code
+                >Clearing browser storage or cache on this device may remove
+                your saved collection.</code
+              >
+            </li>
+          </ul>
           <h4 class="helpSectionSubTitle">Copy Icon</h4>
           <ul class="helpList">
             <li>
               Copies a shareable URL with the current
-              <code>shape</code> and <code>color</code> seeds.
+              <code>shape</code> and <code>color</code> seeds, traits, and mode
+              settings.
             </li>
           </ul>
           <h4 class="helpSectionSubTitle">Download Icon</h4>
@@ -1129,7 +1363,12 @@
           <h3 class="helpSectionTitle">[ Trait Panel ]</h3>
           <ul class="helpList">
             <li>
-              Displays current Glytchling Name, Shape Seed, and Color Seed
+              Displays current Glytchling Name, Shape Seed, and Color Seed.
+            </li>
+            <li>
+              <code>Bookmark Icon</code> adds the current Glytchling shape,
+              color, trait toggles, and mode settings to the Specimen Log
+              without opening the log.
             </li>
             <li>Hover a trait to highlight it on the main Glytchling.</li>
             <li>

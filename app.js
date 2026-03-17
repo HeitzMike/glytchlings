@@ -18,11 +18,15 @@ const canvas = document.getElementById('c');
 const ctx = canvas.getContext('2d');
 const regenerateButton = document.getElementById('regenerateButton');
 const recolorButton = document.getElementById('recolorButton');
+const favoritesButton = document.getElementById('favoritesButton');
 const helpButton = document.getElementById('helpButton');
 const shareButton = document.getElementById('shareButton');
 const downloadButton = document.getElementById('downloadButton');
 const glitchButton = document.getElementById('glitchButton');
 const restoreButton = document.getElementById('restoreButton');
+const favoritesOverlay = document.getElementById('favoritesOverlay');
+const favoritesSaveButton = document.getElementById('favoritesSaveButton');
+const favoritesCloseButton = document.getElementById('favoritesCloseButton');
 const helpOverlay = document.getElementById('helpOverlay');
 const helpCloseButton = document.getElementById('helpCloseButton');
 const shapeSeedForm = document.getElementById('shapeSeedForm');
@@ -38,9 +42,53 @@ const headBobButton = document.getElementById('headBobButton');
 const pauseBobButton = document.getElementById('pauseBobButton');
 const neckButton = document.getElementById('neckButton');
 const traitList = document.getElementById('traitList');
+const inspectorFavoriteButton = document.getElementById('inspectorFavoriteButton');
+const favoritesList = document.getElementById('favoritesList');
+const favoritesEmpty = document.getElementById('favoritesEmpty');
 
 const glytchlingOffsetX = (canvas.width - GLYTCHLING_WIDTH) / 2;
 const glytchlingOffsetY = (canvas.height - GLYTCHLING_HEIGHT) / 2;
+const FAVORITES_STORAGE_KEY = 'glytchlings:favorites:v1';
+const DEFAULT_ENABLED_ATTRIBUTES = {
+  dome: true,
+  core: true,
+  node: true,
+  bits: true,
+  digits: true,
+  treads: true,
+};
+const DEFAULT_FLIPPED_ATTRIBUTES = {
+  dome: false,
+  core: false,
+  node: false,
+  bits: false,
+  digits: false,
+  treads: false,
+};
+const DEFAULT_SYMMETRIC_ATTRIBUTES = {
+  dome: true,
+  core: true,
+  node: true,
+  bits: true,
+  digits: true,
+  treads: true,
+};
+const DEFAULT_HEAD_BOB_ENABLED = true;
+const DEFAULT_NECK_GAP_ENABLED = true;
+const DEFAULT_TERMINAL_MODE_ENABLED = false;
+const SHARE_PART_PARAM_MAP = {
+  dome: 'do',
+  core: 'co',
+  node: 'no',
+  bits: 'bi',
+  digits: 'di',
+  treads: 'tr',
+};
+const SHARE_MODE_PARAM_MAP = {
+  ga: 'neckGapEnabled',
+  cr: 'terminalModeEnabled',
+  pu: 'headBobEnabled',
+};
 
 // Keep newly generated seeds integer-based so the value shown in the UI is the
 // exact same value used internally by the deterministic generator.
@@ -59,25 +107,133 @@ function parseSeedParam(value) {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
+function parseSharedPartState(value) {
+  if (!['1', '2', '3'].includes(value)) return null;
+  return Number(value);
+}
+
+function parseSharedBooleanParam(value, defaultValue) {
+  if (value === '1') return true;
+  if (value === '0') return false;
+  return defaultValue;
+}
+
+function createDefaultShareState() {
+  return {
+    enabledAttributes: { ...DEFAULT_ENABLED_ATTRIBUTES },
+    flippedAttributes: { ...DEFAULT_FLIPPED_ATTRIBUTES },
+    symmetricAttributes: { ...DEFAULT_SYMMETRIC_ATTRIBUTES },
+    headBobEnabled: DEFAULT_HEAD_BOB_ENABLED,
+    neckGapEnabled: DEFAULT_NECK_GAP_ENABLED,
+    terminalModeEnabled: DEFAULT_TERMINAL_MODE_ENABLED,
+  };
+}
+
+function applySharedPartState(state, partName, encodedState) {
+  if (encodedState === 1) {
+    state.enabledAttributes[partName] = true;
+    state.symmetricAttributes[partName] = false;
+    state.flippedAttributes[partName] = false;
+  } else if (encodedState === 2) {
+    state.enabledAttributes[partName] = true;
+    state.symmetricAttributes[partName] = false;
+    state.flippedAttributes[partName] = true;
+  } else if (encodedState === 3) {
+    state.enabledAttributes[partName] = false;
+    state.symmetricAttributes[partName] = true;
+    state.flippedAttributes[partName] = false;
+  }
+}
+
+function encodeSharedPartState(partName, state) {
+  if (!state.enabledAttributes[partName]) return '3';
+  if (!state.symmetricAttributes[partName] && state.flippedAttributes[partName]) return '2';
+  if (!state.symmetricAttributes[partName]) return '1';
+  return null;
+}
+
 function readSeedStateFromUrl() {
   const params = new URLSearchParams(window.location.search);
+  const sharedState = createDefaultShareState();
+
+  for (const [partName, paramName] of Object.entries(SHARE_PART_PARAM_MAP)) {
+    const encodedState = parseSharedPartState(params.get(paramName));
+    if (encodedState == null) continue;
+
+    applySharedPartState(sharedState, partName, encodedState);
+  }
+
+  sharedState.neckGapEnabled = parseSharedBooleanParam(
+    params.get('ga'),
+    DEFAULT_NECK_GAP_ENABLED,
+  );
+  sharedState.terminalModeEnabled = parseSharedBooleanParam(
+    params.get('cr'),
+    DEFAULT_TERMINAL_MODE_ENABLED,
+  );
+  sharedState.headBobEnabled = parseSharedBooleanParam(
+    params.get('pu'),
+    DEFAULT_HEAD_BOB_ENABLED,
+  );
+
   return {
     shapeSeed: parseSeedParam(params.get('shape')),
     colorSeed: parseSeedParam(params.get('color')),
+    ...sharedState,
   };
 }
 
 function syncUrlState() {
+  const currentState = getCurrentStateSnapshot();
   const url = new URL(window.location.href);
   url.searchParams.set('shape', Math.floor(seed));
   url.searchParams.set('color', Math.floor(paletteSeed));
+
+  for (const [partName, paramName] of Object.entries(SHARE_PART_PARAM_MAP)) {
+    const encodedState = encodeSharedPartState(partName, currentState);
+    if (encodedState) {
+      url.searchParams.set(paramName, encodedState);
+    } else {
+      url.searchParams.delete(paramName);
+    }
+  }
+
+  for (const [paramName, stateKey] of Object.entries(SHARE_MODE_PARAM_MAP)) {
+    const defaultValue = createDefaultShareState()[stateKey];
+    if (currentState[stateKey] !== defaultValue) {
+      url.searchParams.set(paramName, currentState[stateKey] ? '1' : '0');
+    } else {
+      url.searchParams.delete(paramName);
+    }
+  }
+
   window.history.replaceState({}, '', url);
 }
 
 function getShareUrl() {
+  const currentState = getCurrentStateSnapshot();
   const url = new URL(window.location.href);
   url.searchParams.set('shape', Math.floor(seed));
   url.searchParams.set('color', Math.floor(paletteSeed));
+
+  for (const [partName, paramName] of Object.entries(SHARE_PART_PARAM_MAP)) {
+    const encodedState = encodeSharedPartState(partName, currentState);
+    if (encodedState) {
+      url.searchParams.set(paramName, encodedState);
+    } else {
+      url.searchParams.delete(paramName);
+    }
+  }
+
+  for (const [paramName, stateKey] of Object.entries(SHARE_MODE_PARAM_MAP)) {
+    const defaultValue = createDefaultShareState()[stateKey];
+    if (currentState[stateKey] !== defaultValue) {
+      url.searchParams.set(paramName, currentState[stateKey] ? '1' : '0');
+    } else {
+      url.searchParams.delete(paramName);
+    }
+  }
+
   return url.toString();
 }
 
@@ -104,8 +260,75 @@ function flashButtonContent(button, nextContent, timeout = 1400) {
 }
 
 function setHelpOpen(isOpen) {
+  if (isOpen) {
+    setFavoritesOpen(false);
+  }
   helpOverlay.classList.toggle('isOpen', isOpen);
   helpOverlay.setAttribute('aria-hidden', String(!isOpen));
+}
+
+function setFavoritesOpen(isOpen) {
+  if (isOpen) {
+    helpOverlay.classList.remove('isOpen');
+    helpOverlay.setAttribute('aria-hidden', 'true');
+  }
+  favoritesOverlay.classList.toggle('isOpen', isOpen);
+  favoritesOverlay.setAttribute('aria-hidden', String(!isOpen));
+}
+
+function loadFavoritesFromStorage() {
+  try {
+    const raw = window.localStorage.getItem(FAVORITES_STORAGE_KEY);
+    if (!raw) return [];
+
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function persistFavorites() {
+  try {
+    window.localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(favorites));
+  } catch {
+    // Ignore storage failures so the app still works in private/restricted modes.
+  }
+}
+
+function getCurrentStateSnapshot() {
+  return {
+    shapeSeed: Math.floor(seed),
+    colorSeed: Math.floor(paletteSeed),
+    enabledAttributes: { ...enabledAttributes },
+    flippedAttributes: { ...flippedAttributes },
+    symmetricAttributes: { ...symmetricAttributes },
+    headBobEnabled,
+    neckGapEnabled,
+    terminalModeEnabled,
+  };
+}
+
+function getFavoriteStateKey(state) {
+  return JSON.stringify({
+    shapeSeed: state.shapeSeed,
+    colorSeed: state.colorSeed,
+    enabledAttributes: state.enabledAttributes,
+    flippedAttributes: state.flippedAttributes,
+    symmetricAttributes: state.symmetricAttributes,
+    headBobEnabled: state.headBobEnabled,
+    neckGapEnabled: state.neckGapEnabled,
+    terminalModeEnabled: state.terminalModeEnabled,
+  });
+}
+
+function formatSavedAt(timestamp) {
+  return new Intl.DateTimeFormat(undefined, {
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  }).format(timestamp);
 }
 
 async function copyTextToClipboard(text) {
@@ -144,39 +367,19 @@ const initialUrlState = readSeedStateFromUrl();
 
 shareButton.dataset.defaultContent = COPY_ICON_SVG;
 downloadButton.dataset.defaultContent = DOWNLOAD_ICON_SVG;
+inspectorFavoriteButton.dataset.defaultContent = inspectorFavoriteButton.innerHTML;
 
 let seed = initialUrlState.shapeSeed ?? randomSeed();
 let paletteSeed = initialUrlState.colorSeed ?? randomSeed();
 let t = 0;
-let enabledAttributes = {
-  dome: true,
-  core: true,
-  node: true,
-  bits: true,
-  digits: true,
-  treads: true,
-};
-let flippedAttributes = {
-  dome: false,
-  core: false,
-  node: false,
-  bits: false,
-  digits: false,
-  treads: false,
-};
-let symmetricAttributes = {
-  dome: true,
-  core: true,
-  node: true,
-  bits: true,
-  digits: true,
-  treads: true,
-};
-let headBobEnabled = true;
+let enabledAttributes = { ...initialUrlState.enabledAttributes };
+let flippedAttributes = { ...initialUrlState.flippedAttributes };
+let symmetricAttributes = { ...initialUrlState.symmetricAttributes };
+let headBobEnabled = initialUrlState.headBobEnabled;
 let headBobPaused = false;
 let pausedHeadOffset = 0;
-let neckGapEnabled = true;
-let terminalModeEnabled = false;
+let neckGapEnabled = initialUrlState.neckGapEnabled;
+let terminalModeEnabled = initialUrlState.terminalModeEnabled;
 let glytchling = generateGlytchling(seed, {
   enabledAttributes,
   flippedAttributes,
@@ -185,6 +388,7 @@ let glytchling = generateGlytchling(seed, {
 });
 let hoveredPart = null;
 let pinnedPart = null;
+let favorites = loadFavoritesFromStorage();
 
 ctx.imageSmoothingEnabled = false;
 
@@ -422,6 +626,143 @@ function renderPartInspector(seed, glytchling) {
 
   updateTraitRowStates();
   syncPresentationButtons();
+  renderFavoritesList();
+}
+
+function createFavoritePreviewDataUrl(state) {
+  const previewGlytchling = generateGlytchling(state.shapeSeed, {
+    enabledAttributes: state.enabledAttributes,
+    flippedAttributes: state.flippedAttributes,
+    paletteSeed: state.colorSeed,
+    symmetricAttributes: state.symmetricAttributes,
+  });
+  const previewCanvas = document.createElement('canvas');
+  const previewCtx = previewCanvas.getContext('2d');
+  const previewPixel = 5;
+  const previewOffset = previewPixel;
+  const getPreviewDrawY = (y) => (y < DOME_HEIGHT || state.neckGapEnabled ? y : y - 1);
+
+  previewCanvas.width = (WIDTH + 2) * previewPixel;
+  previewCanvas.height = (HEIGHT + 2) * previewPixel;
+  previewCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+
+  const previewIntensityMap = new Map();
+
+  if (state.terminalModeEnabled) {
+    for (const partName of DRAW_ORDER) {
+      const partMask = previewGlytchling.parts[partName];
+      if (!partMask || !partHasPixels(partMask)) continue;
+
+      for (let y = 0; y < partMask.length; y++) {
+        for (let x = 0; x < partMask[y].length; x++) {
+          if (!partMask[y][x]) continue;
+
+          const key = `${x},${getPreviewDrawY(y)}`;
+          previewIntensityMap.set(key, (previewIntensityMap.get(key) ?? 0) + 1);
+        }
+      }
+    }
+  }
+
+  for (const partName of DRAW_ORDER) {
+    const partMask = previewGlytchling.parts[partName];
+    if (!partMask || !partHasPixels(partMask)) continue;
+
+    for (let y = 0; y < partMask.length; y++) {
+      for (let x = 0; x < partMask[y].length; x++) {
+        if (!partMask[y][x]) continue;
+
+        const drawY = getPreviewDrawY(y);
+        const drawX = x * previewPixel + previewOffset;
+        const absoluteY = drawY * previewPixel + previewOffset;
+
+        if (state.terminalModeEnabled) {
+          const overlapCount = previewIntensityMap.get(`${x},${drawY}`) ?? 1;
+          const glowStrength =
+            overlapCount >= 3 ? 0.95 : overlapCount === 2 ? 0.6 : 0.28;
+
+          previewCtx.fillStyle = 'rgba(5, 20, 10, 0.92)';
+          previewCtx.fillRect(drawX, absoluteY, previewPixel, previewPixel);
+
+          previewCtx.fillStyle = `rgba(125, 255, 143, ${0.18 + glowStrength * 0.22})`;
+          previewCtx.fillRect(
+            drawX + 1,
+            absoluteY + 1,
+            Math.max(1, previewPixel - 2),
+            Math.max(1, previewPixel - 2),
+          );
+
+          previewCtx.strokeStyle = `rgba(162, 255, 173, ${0.2 + glowStrength * 0.28})`;
+          previewCtx.lineWidth = 1;
+          previewCtx.strokeRect(
+            drawX + 0.5,
+            absoluteY + 0.5,
+            Math.max(0, previewPixel - 1),
+            Math.max(0, previewPixel - 1),
+          );
+        } else {
+          previewCtx.fillStyle = getPartColor(previewGlytchling.palette, partName);
+          previewCtx.fillRect(drawX, absoluteY, previewPixel, previewPixel);
+        }
+      }
+    }
+  }
+
+  return previewCanvas.toDataURL('image/png');
+}
+
+function renderFavoritesList() {
+  favoritesList.innerHTML = '';
+  favoritesEmpty.hidden = favorites.length > 0;
+  const currentStateKey = getFavoriteStateKey(getCurrentStateSnapshot());
+
+  for (const favorite of favorites) {
+    const item = document.createElement('li');
+    item.className = 'favoriteItem';
+
+    const row = document.createElement('div');
+    row.className = 'favoriteRow';
+
+    const loadButton = document.createElement('button');
+    loadButton.className = 'favoriteLoad';
+    loadButton.type = 'button';
+    loadButton.dataset.favoriteLoad = favorite.id;
+    loadButton.classList.toggle('isCurrent', favorite.id === currentStateKey);
+
+    const thumb = document.createElement('img');
+    thumb.className = 'favoriteThumb';
+    thumb.src = favorite.preview;
+    thumb.alt = `${favorite.name} preview`;
+
+    const meta = document.createElement('div');
+    meta.className = 'favoriteMeta';
+
+    const name = document.createElement('span');
+    name.className = 'favoriteName';
+    name.textContent = favorite.name;
+
+    const seeds = document.createElement('span');
+    seeds.className = 'favoriteSeeds';
+    seeds.textContent = `shape ${favorite.shapeSeed} / color ${favorite.colorSeed}`;
+
+    const savedAt = document.createElement('span');
+    savedAt.className = 'favoriteSavedAt';
+    savedAt.textContent = `saved ${formatSavedAt(favorite.savedAt)}`;
+
+    meta.append(name, seeds, savedAt);
+    loadButton.append(thumb, meta);
+
+    const deleteButton = document.createElement('button');
+    deleteButton.className = 'seedButton iconButton';
+    deleteButton.type = 'button';
+    deleteButton.dataset.favoriteDelete = favorite.id;
+    deleteButton.setAttribute('aria-label', `Delete ${favorite.name}`);
+    deleteButton.textContent = 'X';
+
+    row.append(loadButton, deleteButton);
+    item.append(row);
+    favoritesList.append(item);
+  }
 }
 
 // Draw one part mask into the main canvas, applying the current presentation
@@ -533,6 +874,14 @@ function animate() {
 function regenerateGlytchling() {
   seed = randomSeed();
   paletteSeed = randomSeed();
+  enabledAttributes = { ...DEFAULT_ENABLED_ATTRIBUTES };
+  flippedAttributes = { ...DEFAULT_FLIPPED_ATTRIBUTES };
+  symmetricAttributes = { ...DEFAULT_SYMMETRIC_ATTRIBUTES };
+  headBobEnabled = DEFAULT_HEAD_BOB_ENABLED;
+  headBobPaused = false;
+  pausedHeadOffset = 0;
+  neckGapEnabled = DEFAULT_NECK_GAP_ENABLED;
+  terminalModeEnabled = DEFAULT_TERMINAL_MODE_ENABLED;
   glytchling = generateGlytchling(seed, {
     enabledAttributes,
     flippedAttributes,
@@ -609,6 +958,60 @@ function downloadGlytchlingImage() {
   link.download = `${safeName}-shape-${Math.floor(seed)}-color-${Math.floor(paletteSeed)}.png`;
   link.click();
   flashButtonContent(downloadButton, CHECK_ICON_SVG);
+}
+
+function applySavedState(state) {
+  seed = state.shapeSeed;
+  paletteSeed = state.colorSeed;
+  enabledAttributes = { ...state.enabledAttributes };
+  flippedAttributes = { ...state.flippedAttributes };
+  symmetricAttributes = { ...state.symmetricAttributes };
+  headBobEnabled = state.headBobEnabled;
+  headBobPaused = false;
+  pausedHeadOffset = 0;
+  neckGapEnabled = state.neckGapEnabled;
+  terminalModeEnabled = state.terminalModeEnabled;
+
+  glytchling = generateGlytchling(seed, {
+    enabledAttributes,
+    flippedAttributes,
+    paletteSeed,
+    symmetricAttributes,
+  });
+  hoveredPart = null;
+  pinnedPart = null;
+  renderPartInspector(seed, glytchling);
+  renderFavoritesList();
+}
+
+function saveCurrentFavorite() {
+  const state = getCurrentStateSnapshot();
+  const favorite = {
+    ...state,
+    id: getFavoriteStateKey(state),
+    name: glytchling.name,
+    preview: createFavoritePreviewDataUrl(state),
+    savedAt: Date.now(),
+  };
+
+  favorites = [favorite, ...favorites.filter((entry) => entry.id !== favorite.id)];
+  persistFavorites();
+  renderFavoritesList();
+  flashButtonContent(favoritesSaveButton, 'Saved');
+  flashButtonContent(inspectorFavoriteButton, CHECK_ICON_SVG);
+}
+
+function loadFavoriteById(favoriteId) {
+  const favorite = favorites.find((entry) => entry.id === favoriteId);
+  if (!favorite) return;
+
+  applySavedState(favorite);
+}
+
+function deleteFavoriteById(favoriteId) {
+  favorites = favorites.filter((entry) => entry.id !== favoriteId);
+  persistFavorites();
+  renderFavoritesList();
 }
 
 // Glitch mode scrambles the current option state without rolling a new shape or
@@ -707,6 +1110,9 @@ traitList.addEventListener('click', (event) => {
 // - Recolor rolls only the palette
 // - shape/color forms load explicit seeds
 // - the presentation buttons update only the renderer, not the generator
+favoritesButton.addEventListener('click', () => {
+  setFavoritesOpen(true);
+});
 helpButton.addEventListener('click', () => {
   setHelpOpen(true);
 });
@@ -716,6 +1122,16 @@ shareButton.addEventListener('click', copyGlytchlingLink);
 downloadButton.addEventListener('click', downloadGlytchlingImage);
 glitchButton.addEventListener('click', glitchGlytchlingOptions);
 restoreButton.addEventListener('click', restoreGlytchlingOptions);
+favoritesSaveButton.addEventListener('click', saveCurrentFavorite);
+inspectorFavoriteButton.addEventListener('click', saveCurrentFavorite);
+favoritesCloseButton.addEventListener('click', () => {
+  setFavoritesOpen(false);
+});
+favoritesOverlay.addEventListener('click', (event) => {
+  if (event.target === favoritesOverlay) {
+    setFavoritesOpen(false);
+  }
+});
 helpCloseButton.addEventListener('click', () => {
   setHelpOpen(false);
 });
@@ -796,9 +1212,29 @@ traitList.addEventListener('change', (event) => {
   };
   setGlytchlingSeed(seed);
 });
+favoritesList.addEventListener('click', (event) => {
+  const deleteButton = event.target.closest('[data-favorite-delete]');
+  if (deleteButton) {
+    deleteFavoriteById(deleteButton.dataset.favoriteDelete);
+    return;
+  }
+
+  const loadButton = event.target.closest('[data-favorite-load]');
+  if (loadButton) {
+    loadFavoriteById(loadButton.dataset.favoriteLoad);
+    setFavoritesOpen(false);
+  }
+});
 window.addEventListener('keydown', (event) => {
-  if (event.key === 'Escape' && helpOverlay.classList.contains('isOpen')) {
-    setHelpOpen(false);
+  if (event.key === 'Escape') {
+    if (favoritesOverlay.classList.contains('isOpen')) {
+      setFavoritesOpen(false);
+      return;
+    }
+
+    if (helpOverlay.classList.contains('isOpen')) {
+      setHelpOpen(false);
+    }
   }
 });
 renderPartInspector(seed, glytchling);

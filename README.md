@@ -39,7 +39,8 @@ Each Glytchling is generated from deterministic shape and color seeds. That mean
 - Generates a deterministic glitchy name from seeded syllable pools with occasional character mutations
 - Lets you inspect each generated trait individually
 - Supports per-part toggles for `on`, `sym`, and `flip`
-- Can copy a shareable URL with the current `shape` and `color`
+- Includes a local `Specimen Log` for adding favorite Glytchlings with their current trait and mode settings
+- Can copy a shareable URL with the current `shape` and `color` and any trait and mode settings
 - Can download the current render as a PNG
 
 ## Generation Logic
@@ -75,8 +76,10 @@ Opening that link later will restore the same Glytchling and color scheme.
 
 - `Load`: load a specific color seed
 
-### Top Right Icons
+### Utility Menu (icon bar)
 
+- help icon: opens the `System Help` menu with app functionality explanation
+- bookmark icon: opens the `Specimen Log` and lets you save/load favorite Glytchlings in local browser storage
 - copy icon: copies the current Glytchling URL
 - download icon: downloads the current canvas as a PNG using a filesystem-safe version of the Glytchling name, unsafe characters replaced with '-'
 
@@ -102,7 +105,7 @@ The inspector shows:
 - `Name`
 - `Shape`
 - `Color`
-- a generated readout for each trait
+- a bookmark icon for quick add to `Specimen Log`
 
 Each trait row includes:
 
