@@ -35,6 +35,7 @@ const shapeSeedInput = document.getElementById('shapeSeedInput');
 const colorSeedInput = document.getElementById('colorSeedInput');
 const seedValue = document.getElementById('seedValue');
 const colorSeedValue = document.getElementById('colorSeedValue');
+const traitColorValue = document.getElementById('traitColorValue');
 const nameValue = document.getElementById('nameValue');
 const symmetryAllButton = document.getElementById('symmetryAllButton');
 const terminalModeButton = document.getElementById('terminalModeButton');
@@ -536,6 +537,17 @@ function getActivePart() {
   return hoveredPart ?? pinnedPart;
 }
 
+function updateTraitColorReadout() {
+  const activePart = getActivePart();
+
+  if (!activePart || !glytchling) {
+    traitColorValue.textContent = '[None Selected]';
+    return;
+  }
+
+  traitColorValue.textContent = `[${getPartColor(glytchling.palette, activePart)}]`;
+}
+
 function partHasPixels(partMask) {
   return partMask.some((row) => row.some(Boolean));
 }
@@ -577,6 +589,8 @@ function updateTraitRowStates() {
     row.classList.toggle('isActive', part === activePart);
     row.classList.toggle('isPinned', part === pinnedPart);
   }
+
+  updateTraitColorReadout();
 }
 
 // Trait previews are miniature masks shown in the sidebar. They are intentionally
@@ -608,6 +622,7 @@ function renderPartInspector(seed, glytchling) {
   const { name, parts, traits } = glytchling;
 
   nameValue.textContent = `[${name}]...`;
+  updateTraitColorReadout();
   renderTraitInspector(seed, traits);
 
   for (const row of traitList.querySelectorAll('.traitRow')) {
