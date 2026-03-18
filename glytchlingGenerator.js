@@ -141,7 +141,7 @@ function generateDome(grid, partMask, seed, symmetric = true, flipped = false) {
 
   const filledCells = finalLeftHalf.filledCells + rightHalf.filledCells;
 
-  if (filledCells < 24) return 'small';
+  if (filledCells < 24) return 'slight';
   if (filledCells < 38) return 'balanced';
   return 'full';
 }
@@ -180,9 +180,9 @@ function generateCore(grid, partMask, seed, symmetric = true, flipped = false) {
 
   const filledCells = finalLeftHalf.filledCells + rightHalf.filledCells;
 
-  if (filledCells < 28) return 'narrow';
+  if (filledCells < 28) return 'slight';
   if (filledCells < 42) return 'balanced';
-  return 'dense';
+  return 'full';
 }
 
 // Nodes and bits both generate inside small constrained zones near the top of

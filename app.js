@@ -43,7 +43,9 @@ const headBobButton = document.getElementById('headBobButton');
 const pauseBobButton = document.getElementById('pauseBobButton');
 const neckButton = document.getElementById('neckButton');
 const traitList = document.getElementById('traitList');
-const inspectorFavoriteButton = document.getElementById('inspectorFavoriteButton');
+const inspectorFavoriteButton = document.getElementById(
+  'inspectorFavoriteButton',
+);
 const favoritesList = document.getElementById('favoritesList');
 const favoritesEmpty = document.getElementById('favoritesEmpty');
 
@@ -148,7 +150,8 @@ function applySharedPartState(state, partName, encodedState) {
 
 function encodeSharedPartState(partName, state) {
   if (!state.enabledAttributes[partName]) return '3';
-  if (!state.symmetricAttributes[partName] && state.flippedAttributes[partName]) return '2';
+  if (!state.symmetricAttributes[partName] && state.flippedAttributes[partName])
+    return '2';
   if (!state.symmetricAttributes[partName]) return '1';
   return null;
 }
@@ -239,7 +242,10 @@ function getShareUrl() {
 }
 
 function sanitizeFilenamePart(value) {
-  return value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
 }
 
 const COPY_ICON_SVG =
@@ -291,7 +297,10 @@ function loadFavoritesFromStorage() {
 
 function persistFavorites() {
   try {
-    window.localStorage.setItem(FAVORITES_STORAGE_KEY, JSON.stringify(favorites));
+    window.localStorage.setItem(
+      FAVORITES_STORAGE_KEY,
+      JSON.stringify(favorites),
+    );
   } catch {
     // Ignore storage failures so the app still works in private/restricted modes.
   }
@@ -368,7 +377,8 @@ const initialUrlState = readSeedStateFromUrl();
 
 shareButton.dataset.defaultContent = COPY_ICON_SVG;
 downloadButton.dataset.defaultContent = DOWNLOAD_ICON_SVG;
-inspectorFavoriteButton.dataset.defaultContent = inspectorFavoriteButton.innerHTML;
+inspectorFavoriteButton.dataset.defaultContent =
+  inspectorFavoriteButton.innerHTML;
 
 let seed = initialUrlState.shapeSeed ?? randomSeed();
 let paletteSeed = initialUrlState.colorSeed ?? randomSeed();
@@ -655,7 +665,8 @@ function createFavoritePreviewDataUrl(state) {
   const previewCtx = previewCanvas.getContext('2d');
   const previewPixel = 5;
   const previewOffset = previewPixel;
-  const getPreviewDrawY = (y) => (y < DOME_HEIGHT || state.neckGapEnabled ? y : y - 1);
+  const getPreviewDrawY = (y) =>
+    y < DOME_HEIGHT || state.neckGapEnabled ? y : y - 1;
 
   previewCanvas.width = (WIDTH + 2) * previewPixel;
   previewCanvas.height = (HEIGHT + 2) * previewPixel;
@@ -716,7 +727,10 @@ function createFavoritePreviewDataUrl(state) {
             Math.max(0, previewPixel - 1),
           );
         } else {
-          previewCtx.fillStyle = getPartColor(previewGlytchling.palette, partName);
+          previewCtx.fillStyle = getPartColor(
+            previewGlytchling.palette,
+            partName,
+          );
           previewCtx.fillRect(drawX, absoluteY, previewPixel, previewPixel);
         }
       }
@@ -889,14 +903,6 @@ function animate() {
 function regenerateGlytchling() {
   seed = randomSeed();
   paletteSeed = randomSeed();
-  enabledAttributes = { ...DEFAULT_ENABLED_ATTRIBUTES };
-  flippedAttributes = { ...DEFAULT_FLIPPED_ATTRIBUTES };
-  symmetricAttributes = { ...DEFAULT_SYMMETRIC_ATTRIBUTES };
-  headBobEnabled = DEFAULT_HEAD_BOB_ENABLED;
-  headBobPaused = false;
-  pausedHeadOffset = 0;
-  neckGapEnabled = DEFAULT_NECK_GAP_ENABLED;
-  terminalModeEnabled = DEFAULT_TERMINAL_MODE_ENABLED;
   glytchling = generateGlytchling(seed, {
     enabledAttributes,
     flippedAttributes,
@@ -967,7 +973,8 @@ async function copyGlytchlingLink() {
 // modes like CRT FX, and uses the name plus current shape/color seeds in the file.
 function downloadGlytchlingImage() {
   const link = document.createElement('a');
-  const safeName = sanitizeFilenamePart(glytchling.name || 'glytchling') || 'glytchling';
+  const safeName =
+    sanitizeFilenamePart(glytchling.name || 'glytchling') || 'glytchling';
 
   link.href = canvas.toDataURL('image/png');
   link.download = `${safeName}-shape-${Math.floor(seed)}-color-${Math.floor(paletteSeed)}.png`;
@@ -1009,7 +1016,10 @@ function saveCurrentFavorite() {
     savedAt: Date.now(),
   };
 
-  favorites = [favorite, ...favorites.filter((entry) => entry.id !== favorite.id)];
+  favorites = [
+    favorite,
+    ...favorites.filter((entry) => entry.id !== favorite.id),
+  ];
   persistFavorites();
   renderFavoritesList();
   flashButtonContent(favoritesSaveButton, 'Saved');
