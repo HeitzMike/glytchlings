@@ -15,6 +15,9 @@ Glytchlings is a seeded procedural Glytchling generator built as a small static 
 
 Each Glytchling is generated from deterministic shape and color seeds. That means the same `shape` and `color` values will always recreate the same Glytchling and palette, which makes sharing, saving favorites, and reusing seeds across other projects straightforward.
 
+View the live site: [heitzmike.github.io/glytchlings/](https://heitzmike.github.io/glytchlings/)
+Like this project and want to help support? [Buy Me A Coffee!](https://buymeacoffee.com/heitzstudio)
+
 ## Specimen Variants
 
 <table>
@@ -66,6 +69,13 @@ The current URL is kept in sync like this:
 
 Opening that link later will restore the same Glytchling and color scheme.
 
+## Utility Menu (top icon bar)
+
+- help icon: opens the `System Help` menu with app functionality explanation
+- book icon: opens the `Specimen Log` and lets you save/load favorite Glytchlings in local browser storage
+- copy icon: copies the current Glytchling URL
+- download icon: downloads the current canvas as a PNG using a filesystem-safe version of the Glytchling name, unsafe characters replaced with '-'
+
 ## Control Panel
 
 ### Shape
@@ -76,19 +86,12 @@ Opening that link later will restore the same Glytchling and color scheme.
 
 - `Load`: load a specific color seed
 
-### Utility Menu (icon bar)
-
-- help icon: opens the `System Help` menu with app functionality explanation
-- bookmark icon: opens the `Specimen Log` and lets you save/load favorite Glytchlings in local browser storage
-- copy icon: copies the current Glytchling URL
-- download icon: downloads the current canvas as a PNG using a filesystem-safe version of the Glytchling name, unsafe characters replaced with '-'
-
 ### Glytch
 
-- `Spawn`: generate a new shape seed and color seed
-- `Color`: keep the current shape, generate a new palette
-- `Cºrru_pt`: adds pure chaos, randomize trait toggles and some presentation state
-- `Restore`: return the trait/presentation controls to a clean default state
+- `Spawn`: generate a new shape seed and color seed with current trait toggles and mode settings
+- `Color`: generate a new palette with current shape, trait toggles, and mode settings
+- `Cºrru_pt`: adds pure chaos, randomize trait toggles and some mode settings
+- `Restore`: return the trait/mode controls to a clean default state
 
 ### Mode
 
@@ -105,6 +108,7 @@ The inspector shows:
 - `Name`
 - `Shape`
 - `Color`
+- `Trait Color` for currently selected trait
 - a bookmark icon for quick add to `Specimen Log`
 
 Each trait row includes:
