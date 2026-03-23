@@ -25,10 +25,18 @@ const downloadButton = document.getElementById('downloadButton');
 const glitchButton = document.getElementById('glitchButton');
 const restoreButton = document.getElementById('restoreButton');
 const favoritesOverlay = document.getElementById('favoritesOverlay');
-const favoritesSaveButton = document.getElementById('favoritesSaveButton');
+const favoritesUploadButton = document.getElementById('favoritesUploadButton');
+const favoritesDownloadButton = document.getElementById(
+  'favoritesDownloadButton',
+);
 const favoritesCloseButton = document.getElementById('favoritesCloseButton');
+const favoritesImportInput = document.getElementById('favoritesImportInput');
 const helpOverlay = document.getElementById('helpOverlay');
 const helpCloseButton = document.getElementById('helpCloseButton');
+const changelogOverlay = document.getElementById('changelogOverlay');
+const changelogButton = document.getElementById('changelogButton');
+const changelogCloseButton = document.getElementById('changelogCloseButton');
+const changelogContent = document.getElementById('changelogContent');
 const shapeSeedForm = document.getElementById('shapeSeedForm');
 const colorSeedForm = document.getElementById('colorSeedForm');
 const shapeSeedInput = document.getElementById('shapeSeedInput');
@@ -48,10 +56,12 @@ const inspectorFavoriteButton = document.getElementById(
 );
 const favoritesList = document.getElementById('favoritesList');
 const favoritesEmpty = document.getElementById('favoritesEmpty');
+const favoritesStatus = document.getElementById('favoritesStatus');
 
 const glytchlingOffsetX = (canvas.width - GLYTCHLING_WIDTH) / 2;
 const glytchlingOffsetY = (canvas.height - GLYTCHLING_HEIGHT) / 2;
 const FAVORITES_STORAGE_KEY = 'glytchlings:favorites:v1';
+const FAVORITES_EXPORT_VERSION = 1;
 const DEFAULT_ENABLED_ATTRIBUTES = {
   dome: true,
   core: true,
@@ -92,6 +102,7 @@ const SHARE_MODE_PARAM_MAP = {
   cr: 'terminalModeEnabled',
   pu: 'headBobEnabled',
 };
+let changelogLoaded = false;
 
 // Keep newly generated seeds integer-based so the value shown in the UI is the
 // exact same value used internally by the deterministic generator.
@@ -269,6 +280,7 @@ function flashButtonContent(button, nextContent, timeout = 1400) {
 function setHelpOpen(isOpen) {
   if (isOpen) {
     setFavoritesOpen(false);
+    setChangelogOpen(false);
   }
   helpOverlay.classList.toggle('isOpen', isOpen);
   helpOverlay.setAttribute('aria-hidden', String(!isOpen));
@@ -281,6 +293,258 @@ function setFavoritesOpen(isOpen) {
   }
   favoritesOverlay.classList.toggle('isOpen', isOpen);
   favoritesOverlay.setAttribute('aria-hidden', String(!isOpen));
+
+  if (!isOpen) {
+    favoritesImportInput.value = '';
+  }
+}
+
+function setChangelogOpen(isOpen) {
+  if (isOpen) {
+    setFavoritesOpen(false);
+    helpOverlay.classList.remove('isOpen');
+    helpOverlay.setAttribute('aria-hidden', 'true');
+    loadChangelogContent();
+  }
+
+  changelogOverlay.classList.toggle('isOpen', isOpen);
+  changelogOverlay.setAttribute('aria-hidden', String(!isOpen));
+}
+
+function appendChangelogEntry(container, versionLine, bulletLines) {
+  const item = document.createElement('section');
+  item.className = 'changelogItem';
+
+  const version = document.createElement('p');
+  version.className = 'changelogVersion';
+  version.textContent = versionLine;
+  item.appendChild(version);
+
+  if (bulletLines.length > 0) {
+    const list = document.createElement('ul');
+    list.className = 'changelogList';
+
+    for (const bulletLine of bulletLines) {
+      const listItem = document.createElement('li');
+      listItem.textContent = bulletLine;
+      list.appendChild(listItem);
+    }
+
+    item.appendChild(list);
+  }
+
+  container.appendChild(item);
+}
+
+function renderChangelogMarkdown(markdown) {
+  const content = document.createElement('div');
+  content.id = 'changelogContent';
+  content.className = 'helpCopy';
+
+  const lines = markdown.split(/\r?\n/);
+  let currentVersion = '';
+  let currentBullets = [];
+  let hasEntries = false;
+
+  for (const rawLine of lines) {
+    const line = rawLine.trim();
+    if (!line || line === '# Changelog') continue;
+
+    if (line.startsWith('## ')) {
+      if (currentVersion) {
+        appendChangelogEntry(content, currentVersion, currentBullets);
+        hasEntries = true;
+      }
+
+      currentVersion = line.slice(3).trim();
+      currentBullets = [];
+      continue;
+    }
+
+    if (line.startsWith('- ')) {
+      currentBullets.push(line.slice(2).trim());
+    }
+  }
+
+  if (currentVersion) {
+    appendChangelogEntry(content, currentVersion, currentBullets);
+    hasEntries = true;
+  }
+
+  if (!hasEntries) {
+    content.textContent = 'No changelog entries found.';
+  }
+
+  return content;
+}
+
+async function loadChangelogContent() {
+  if (changelogLoaded) return;
+
+  try {
+    const response = await fetch('./CHANGELOG.md', { cache: 'no-cache' });
+    if (!response.ok)
+      throw new Error(`Unable to load changelog (${response.status})`);
+
+    const markdown = await response.text();
+    const renderedContent = renderChangelogMarkdown(markdown);
+    changelogContent.replaceWith(renderedContent);
+    changelogLoaded = true;
+  } catch (_error) {
+    changelogContent.textContent = 'Unable to load changelog.';
+  }
+}
+
+function setFavoritesStatus(message = '', isError = false) {
+  favoritesStatus.textContent = `Last action: ${message || 'none'}`;
+  favoritesStatus.classList.toggle('isError', isError);
+}
+
+function isPlainObject(value) {
+  return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+}
+
+function parseSafeSeedValue(value) {
+  if (!Number.isFinite(value) || !Number.isSafeInteger(value) || value < 0) {
+    return null;
+  }
+
+  return value;
+}
+
+function normalizeBooleanAttributeMap(value, defaults) {
+  if (!isPlainObject(value)) return null;
+
+  const result = {};
+  for (const key of Object.keys(defaults)) {
+    if (typeof value[key] !== 'boolean') return null;
+    result[key] = value[key];
+  }
+
+  return result;
+}
+
+function normalizeFavoriteState(value) {
+  if (!isPlainObject(value)) return null;
+
+  const shapeSeed = parseSafeSeedValue(value.shapeSeed);
+  const colorSeed = parseSafeSeedValue(value.colorSeed);
+  const enabled = normalizeBooleanAttributeMap(
+    value.enabledAttributes,
+    DEFAULT_ENABLED_ATTRIBUTES,
+  );
+  const flipped = normalizeBooleanAttributeMap(
+    value.flippedAttributes,
+    DEFAULT_FLIPPED_ATTRIBUTES,
+  );
+  const symmetric = normalizeBooleanAttributeMap(
+    value.symmetricAttributes,
+    DEFAULT_SYMMETRIC_ATTRIBUTES,
+  );
+
+  if (
+    shapeSeed == null ||
+    colorSeed == null ||
+    !enabled ||
+    !flipped ||
+    !symmetric ||
+    typeof value.headBobEnabled !== 'boolean' ||
+    typeof value.neckGapEnabled !== 'boolean' ||
+    typeof value.terminalModeEnabled !== 'boolean'
+  ) {
+    return null;
+  }
+
+  return {
+    shapeSeed,
+    colorSeed,
+    enabledAttributes: enabled,
+    flippedAttributes: flipped,
+    symmetricAttributes: symmetric,
+    headBobEnabled: value.headBobEnabled,
+    neckGapEnabled: value.neckGapEnabled,
+    terminalModeEnabled: value.terminalModeEnabled,
+  };
+}
+
+function createFavoriteRecord(state, options = {}) {
+  const normalizedState = normalizeFavoriteState(state);
+  if (!normalizedState) return null;
+
+  const previewGlytchling =
+    options.generatedGlytchling ??
+    generateGlytchling(normalizedState.shapeSeed, {
+      enabledAttributes: normalizedState.enabledAttributes,
+      flippedAttributes: normalizedState.flippedAttributes,
+      paletteSeed: normalizedState.colorSeed,
+      symmetricAttributes: normalizedState.symmetricAttributes,
+    });
+
+  return {
+    ...normalizedState,
+    id: getFavoriteStateKey(normalizedState),
+    name:
+      typeof options.name === 'string' && options.name.trim()
+        ? options.name.trim()
+        : previewGlytchling.name,
+    preview: createFavoritePreviewDataUrl(normalizedState),
+    savedAt:
+      Number.isFinite(options.savedAt) && options.savedAt > 0
+        ? options.savedAt
+        : Date.now(),
+  };
+}
+
+function normalizeImportedFavoriteRecord(value) {
+  if (!isPlainObject(value)) return null;
+
+  const parts = value.state?.parts;
+  const modes = value.state?.modes;
+  if (!isPlainObject(parts) || !isPlainObject(modes)) return null;
+
+  const state = createDefaultShareState();
+  const shapeSeed = parseSafeSeedValue(value.shape);
+  const colorSeed = parseSafeSeedValue(value.color);
+
+  if (shapeSeed == null || colorSeed == null) return null;
+
+  for (const partName of Object.keys(DEFAULT_ENABLED_ATTRIBUTES)) {
+    const encodedState = value.state?.parts?.[partName];
+    if (![0, 1, 2, 3].includes(encodedState)) return null;
+
+    if (encodedState !== 0) {
+      applySharedPartState(state, partName, encodedState);
+    }
+  }
+
+  if (
+    typeof modes.gap !== 'boolean' ||
+    typeof modes.crt !== 'boolean' ||
+    typeof modes.pulse !== 'boolean'
+  ) {
+    return null;
+  }
+
+  state.neckGapEnabled = modes.gap;
+  state.terminalModeEnabled = modes.crt;
+  state.headBobEnabled = modes.pulse;
+
+  return createFavoriteRecord(
+    {
+      shapeSeed,
+      colorSeed,
+      enabledAttributes: state.enabledAttributes,
+      flippedAttributes: state.flippedAttributes,
+      symmetricAttributes: state.symmetricAttributes,
+      headBobEnabled: state.headBobEnabled,
+      neckGapEnabled: state.neckGapEnabled,
+      terminalModeEnabled: state.terminalModeEnabled,
+    },
+    {
+      name: value.name,
+      savedAt: Date.parse(value.savedAt),
+    },
+  );
 }
 
 function loadFavoritesFromStorage() {
@@ -289,7 +553,16 @@ function loadFavoritesFromStorage() {
     if (!raw) return [];
 
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
+    if (!Array.isArray(parsed)) return [];
+
+    return parsed
+      .map((favorite) =>
+        createFavoriteRecord(favorite, {
+          name: favorite.name,
+          savedAt: favorite.savedAt,
+        }),
+      )
+      .filter(Boolean);
   } catch {
     return [];
   }
@@ -317,6 +590,122 @@ function getCurrentStateSnapshot() {
     neckGapEnabled,
     terminalModeEnabled,
   };
+}
+
+function createFavoriteExportPayload() {
+  return {
+    version: FAVORITES_EXPORT_VERSION,
+    app: 'glytchlings',
+    exportedAt: new Date().toISOString(),
+    specimens: favorites.map((favorite) => ({
+      name: favorite.name,
+      shape: favorite.shapeSeed,
+      color: favorite.colorSeed,
+      savedAt: new Date(favorite.savedAt).toISOString(),
+      state: {
+        parts: Object.fromEntries(
+          Object.keys(DEFAULT_ENABLED_ATTRIBUTES).map((partName) => [
+            partName,
+            Number(encodeSharedPartState(partName, favorite) ?? 0),
+          ]),
+        ),
+        modes: {
+          gap: favorite.neckGapEnabled,
+          crt: favorite.terminalModeEnabled,
+          pulse: favorite.headBobEnabled,
+        },
+      },
+    })),
+  };
+}
+
+function downloadFavoritesLog() {
+  const payload = createFavoriteExportPayload();
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {
+    type: 'application/json',
+  });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  const stamp = new Date().toISOString().slice(0, 10);
+
+  link.href = url;
+  link.download = `glytchlings-specimen-log-${stamp}.json`;
+  link.click();
+  URL.revokeObjectURL(url);
+
+  setFavoritesStatus(
+    `exported ${payload.specimens.length} specimen${payload.specimens.length === 1 ? '' : 's'}.`,
+  );
+  flashButtonContent(favoritesDownloadButton, 'Done');
+}
+
+async function importFavoritesLog(file) {
+  if (!file) return;
+
+  try {
+    const raw = await file.text();
+    const parsed = JSON.parse(raw);
+
+    if (
+      !isPlainObject(parsed) ||
+      parsed.version !== FAVORITES_EXPORT_VERSION ||
+      !Array.isArray(parsed.specimens)
+    ) {
+      throw new Error('Unsupported specimen log format.');
+    }
+
+    let importedCount = 0;
+    let skippedCount = 0;
+    let invalidCount = 0;
+    const existingIds = new Set(favorites.map((favorite) => favorite.id));
+    const importedFavorites = [];
+
+    for (const specimen of parsed.specimens) {
+      const normalizedFavorite = normalizeImportedFavoriteRecord(specimen);
+      if (!normalizedFavorite) {
+        invalidCount += 1;
+        continue;
+      }
+
+      if (existingIds.has(normalizedFavorite.id)) {
+        skippedCount += 1;
+        continue;
+      }
+
+      existingIds.add(normalizedFavorite.id);
+      importedFavorites.push(normalizedFavorite);
+      importedCount += 1;
+    }
+
+    favorites = [...importedFavorites, ...favorites];
+    persistFavorites();
+    renderFavoritesList();
+
+    const summary = [
+      `Imported ${importedCount}`,
+      skippedCount
+        ? `skipped ${skippedCount} duplicate${skippedCount === 1 ? '' : 's'}`
+        : null,
+      invalidCount
+        ? `ignored ${invalidCount} invalid entr${invalidCount === 1 ? 'y' : 'ies'}`
+        : null,
+    ]
+      .filter(Boolean)
+      .join(' | ');
+
+    setFavoritesStatus(
+      summary ? summary.toLowerCase() : 'no specimens imported.',
+    );
+    flashButtonContent(favoritesUploadButton, 'Done');
+  } catch (error) {
+    setFavoritesStatus(
+      error instanceof Error ? error.message : 'import failed.',
+      true,
+    );
+    flashButtonContent(favoritesUploadButton, 'Error');
+  } finally {
+    favoritesImportInput.value = '';
+  }
 }
 
 function getFavoriteStateKey(state) {
@@ -786,7 +1175,13 @@ function renderFavoritesList() {
     deleteButton.type = 'button';
     deleteButton.dataset.favoriteDelete = favorite.id;
     deleteButton.setAttribute('aria-label', `Delete ${favorite.name}`);
-    deleteButton.textContent = 'X';
+    deleteButton.innerHTML = `
+      <svg class="buttonIcon" viewBox="0 0 16 16" aria-hidden="true">
+        <path
+          d="M5 1h6l1 2h3v2H1V3h3l1-2zm-1 5h2v6H4V6zm3 0h2v6H7V6zm3 0h2v6h-2V6zM3 13h10v1H3v-1z"
+        />
+      </svg>
+    `;
 
     row.append(loadButton, deleteButton);
     item.append(row);
@@ -1008,13 +1403,12 @@ function applySavedState(state) {
 
 function saveCurrentFavorite() {
   const state = getCurrentStateSnapshot();
-  const favorite = {
-    ...state,
-    id: getFavoriteStateKey(state),
+  const favorite = createFavoriteRecord(state, {
     name: glytchling.name,
-    preview: createFavoritePreviewDataUrl(state),
+    generatedGlytchling: glytchling,
     savedAt: Date.now(),
-  };
+  });
+  if (!favorite) return;
 
   favorites = [
     favorite,
@@ -1022,7 +1416,7 @@ function saveCurrentFavorite() {
   ];
   persistFavorites();
   renderFavoritesList();
-  flashButtonContent(favoritesSaveButton, 'Saved');
+  setFavoritesStatus('specimen saved.');
   flashButtonContent(inspectorFavoriteButton, CHECK_ICON_SVG);
 }
 
@@ -1037,6 +1431,7 @@ function deleteFavoriteById(favoriteId) {
   favorites = favorites.filter((entry) => entry.id !== favoriteId);
   persistFavorites();
   renderFavoritesList();
+  setFavoritesStatus('specimen removed.');
 }
 
 // Glitch mode scrambles the current option state without rolling a new shape or
@@ -1147,10 +1542,16 @@ shareButton.addEventListener('click', copyGlytchlingLink);
 downloadButton.addEventListener('click', downloadGlytchlingImage);
 glitchButton.addEventListener('click', glitchGlytchlingOptions);
 restoreButton.addEventListener('click', restoreGlytchlingOptions);
-favoritesSaveButton.addEventListener('click', saveCurrentFavorite);
 inspectorFavoriteButton.addEventListener('click', saveCurrentFavorite);
+favoritesUploadButton.addEventListener('click', () => {
+  favoritesImportInput.click();
+});
+favoritesDownloadButton.addEventListener('click', downloadFavoritesLog);
 favoritesCloseButton.addEventListener('click', () => {
   setFavoritesOpen(false);
+});
+favoritesImportInput.addEventListener('change', (event) => {
+  importFavoritesLog(event.target.files?.[0] ?? null);
 });
 favoritesOverlay.addEventListener('click', (event) => {
   if (event.target === favoritesOverlay) {
@@ -1163,6 +1564,17 @@ helpCloseButton.addEventListener('click', () => {
 helpOverlay.addEventListener('click', (event) => {
   if (event.target === helpOverlay) {
     setHelpOpen(false);
+  }
+});
+changelogButton.addEventListener('click', () => {
+  setChangelogOpen(true);
+});
+changelogCloseButton.addEventListener('click', () => {
+  setChangelogOpen(false);
+});
+changelogOverlay.addEventListener('click', (event) => {
+  if (event.target === changelogOverlay) {
+    setChangelogOpen(false);
   }
 });
 symmetryAllButton.addEventListener('click', () => {
@@ -1259,6 +1671,11 @@ window.addEventListener('keydown', (event) => {
 
     if (helpOverlay.classList.contains('isOpen')) {
       setHelpOpen(false);
+      return;
+    }
+
+    if (changelogOverlay.classList.contains('isOpen')) {
+      setChangelogOpen(false);
     }
   }
 });

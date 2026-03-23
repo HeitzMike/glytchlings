@@ -501,6 +501,18 @@
           0 0 24px rgba(132, 255, 146, 0.08);
       }
 
+      .helpModal.helpModalWithFooter {
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      .helpBody {
+        min-height: 0;
+        overflow-y: auto;
+        padding-right: 4px;
+      }
+
       .helpHeader {
         display: flex;
         align-items: center;
@@ -558,10 +570,83 @@
         color: #d4ffd9;
       }
 
+      .helpFooter {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 16px;
+        padding-top: 14px;
+        border-top: 1px dashed var(--line);
+      }
+
+      .helpVersionButton {
+        padding: 0;
+        border: 0;
+        background: transparent;
+        color: var(--text-dim);
+        font: inherit;
+        font-size: 20px;
+        cursor: pointer;
+        border-bottom: 1px dashed var(--line);
+      }
+
+      .helpVersionButton:hover {
+        color: #d4ffd9;
+        border-color: var(--line-strong);
+      }
+
+      .changelogItem {
+        padding-top: 18px;
+        margin-top: 18px;
+        border-top: 1px dashed var(--line);
+      }
+
+      .changelogItem:first-child {
+        padding-top: 0;
+        margin-top: 0;
+        border-top: 0;
+      }
+
+      .changelogVersion {
+        margin: 0 0 10px;
+        color: var(--text);
+        font-size: 22px;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      .changelogList {
+        margin: 0;
+        padding-left: 24px;
+        list-style: disc;
+      }
+
+      .changelogList li + li {
+        margin-top: 8px;
+      }
+
       .favoritesHeaderActions {
         display: flex;
         align-items: center;
         gap: 8px;
+      }
+
+      .favoritesFooterActions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        margin-top: 16px;
+        padding-top: 14px;
+        border-top: 1px dashed var(--line);
+      }
+
+      .favoritesStatus {
+        margin-top: 12px;
+      }
+
+      .favoritesStatus.isError {
+        color: #ff9b9b;
       }
 
       .favoritesList {
@@ -995,7 +1080,7 @@
           font-size: 13px;
         }
 
-        .favoritesHeaderActions .seedButton:not(.iconButton) {
+        .favoritesFooterActions .seedButton {
           font-size: 12px;
           padding-left: 8px;
           padding-right: 8px;
@@ -1222,9 +1307,6 @@
         <div class="helpHeader">
           <h2 id="favoritesTitle" class="helpTitle">:> Specimen Log</h2>
           <div class="favoritesHeaderActions">
-            <button id="favoritesSaveButton" class="seedButton" type="button">
-              Save Specimen
-            </button>
             <button
               id="favoritesCloseButton"
               class="seedButton iconButton helpClose"
@@ -1235,16 +1317,43 @@
             </button>
           </div>
         </div>
+        <input
+          id="favoritesImportInput"
+          type="file"
+          accept=".json,application/json"
+          hidden
+        />
+        <p id="favoritesStatus" class="helpCopy favoritesStatus">
+          Last action: none
+        </p>
         <p id="favoritesEmpty" class="helpCopy favoritesEmpty">
           Add a Glytchling to start your log.
         </p>
         <ul id="favoritesList" class="favoritesList"></ul>
+        <div class="favoritesFooterActions">
+          <button
+            id="favoritesUploadButton"
+            class="seedButton"
+            type="button"
+            aria-label="Import specimen log"
+          >
+            Upload Log
+          </button>
+          <button
+            id="favoritesDownloadButton"
+            class="seedButton"
+            type="button"
+            aria-label="Download specimen log"
+          >
+            Download Log
+          </button>
+        </div>
       </section>
     </div>
 
     <div id="helpOverlay" class="helpOverlay" aria-hidden="true">
       <section
-        class="helpModal"
+        class="helpModal helpModalWithFooter"
         role="dialog"
         aria-modal="true"
         aria-labelledby="helpTitle"
@@ -1260,149 +1369,197 @@
             X
           </button>
         </div>
-        <p class="helpCopy">
-          Glytchlings is a seeded procedural Glytchling generator. The same
-          <code>shape</code> and <code>color</code> values always recreate the
-          same result.
-        </p>
-
-        <div class="helpSection">
-          <h3 class="helpSectionTitle">[ Utility Menu ]</h3>
-          <h4 class="helpSectionSubTitle">Help Icon</h4>
-          <ul class="helpList">
-            <li>Opens the System Help menu.</li>
-          </ul>
-          <h4 class="helpSectionSubTitle">Book Icon</h4>
-          <ul class="helpList">
-            <li>Opens the Specimen Log.</li>
-            <li>
-              <code>Save Specimen</code> saves the current Glytchling shape,
-              color, trait toggles, and mode settings to the log.
-            </li>
-            <li>
-              Select a saved Glytchling from the log to load it back into the
-              app.
-            </li>
-            <li>
-              <code
-                >Clearing browser storage or cache on this device may remove
-                your saved collection.</code
-              >
-            </li>
-          </ul>
-          <h4 class="helpSectionSubTitle">Copy Icon</h4>
-          <ul class="helpList">
-            <li>
-              Copies a shareable URL with the current
-              <code>shape</code> and <code>color</code> seeds, traits, and mode
-              settings.
-            </li>
-          </ul>
-          <h4 class="helpSectionSubTitle">Download Icon</h4>
-          <ul class="helpList">
-            <li>Saves the current rendered Glytchling view as a PNG.</li>
-            <li>
-              Filenames use a filesystem-safe version of the Glytchling name,
-              shape seed, and color seed. Unsupported characters are replaced
-              with <code>-</code>.
-            </li>
-          </ul>
-        </div>
-
-        <div class="helpSection">
-          <h3 class="helpSectionTitle">[ Control Panel ]</h3>
-          <h4 class="helpSectionSubTitle">Shape</h4>
-          <ul class="helpList">
-            <li>
-              Enter a <code>shape</code> seed and press <code>Load</code> to
-              restore a specific Glytchling form.
-            </li>
-          </ul>
-
-          <h4 class="helpSectionSubTitle">Color</h4>
-          <ul class="helpList">
-            <li>
-              Enter a <code>color</code> seed and press <code>Load</code> to
-              restore a specific palette.
-            </li>
-          </ul>
-          <h4 class="helpSectionSubTitle">Glytch</h4>
-          <ul class="helpList">
-            <li>
-              <code>Spawn</code> generates a new Glytchling with a random shape
-              seed and color seed.
-            </li>
-            <li>
-              <code>Color</code> generates a new color palette with a random
-              seed for current Glytchling shape.
-            </li>
-            <li>
-              <code>Cºrru_pt</code> randomizes Glytchling Traits toggles and
-              some Mode settings. <code>{Can produce extreme results!}</code>
-            </li>
-            <li>
-              <code>Restore</code> returns the current Glytchling to a clean,
-              readable baseline with all parts enabled and symmetrical.
-              <code>{Use when too Cºrru_pt!}</code>
-            </li>
-          </ul>
-          <h4 class="helpSectionTitle">Mode</h4>
-          <ul class="helpList">
-            <li>
-              <code>Sym</code> toggles all Glytchling part symmetry uniformly on
-              or off.
-            </li>
-            <li>
-              <code>CRT</code> toggles Glytchling monochrome terminal render
-              mode on or off.
-            </li>
-            <li>
-              <code>Gap</code> toggles Glytchling dome/core separation on or
-              off.
-            </li>
-            <li>
-              <code>Pulse</code> toggles Glytchling idle animation on or off.
-            </li>
-            <li><code>Pause Icon</code> freezes the current pulse frame.</li>
-          </ul>
-        </div>
-
-        <div class="helpSection">
-          <h3 class="helpSectionTitle">[ Trait Panel ]</h3>
-          <ul class="helpList">
-            <li>
-              Displays current Glytchling Name, Shape Seed, Color Seed, and
-              Selected Trait Color.
-            </li>
-            <li>
-              <code>Bookmark Icon</code> saves the current Glytchling shape,
-              color, trait toggles, and mode settings to the Specimen Log
-              without opening the log.
-            </li>
-            <li>Hover a trait to highlight it on the main Glytchling.</li>
-            <li>
-              Click a trait to pin that highlight until you click it again.
-            </li>
-            <li><code>On</code> enables or disables the part.</li>
-            <li><code>Sym</code> enables or disables the part symmetry.</li>
-            <li>
-              <code>Flip</code> swaps the side used when a part is asymmetrical.
-            </li>
-          </ul>
-        </div>
-
-        <div class="helpSection">
-          <h3 class="helpSectionTitle">[ Source ]</h3>
+        <div class="helpBody">
           <p class="helpCopy">
-            <a
-              class="helpRepoLink"
-              href="https://github.com/HeitzMike/glytchlings"
-              target="_blank"
-              rel="noreferrer"
-              >View the GitHub repo :D</a
-            >
+            Glytchlings is a seeded procedural Glytchling generator. The same
+            <code>shape</code> and <code>color</code> values always recreate the
+            same result.
           </p>
+
+          <div class="helpSection">
+            <h3 class="helpSectionTitle">[ Utility Menu ]</h3>
+            <h4 class="helpSectionSubTitle">Help Icon</h4>
+            <ul class="helpList">
+              <li>Opens the System Help menu.</li>
+            </ul>
+            <h4 class="helpSectionSubTitle">Book Icon</h4>
+            <ul class="helpList">
+              <li>Opens the Specimen Log.</li>
+              <li>
+                Use the <code>Bookmark Icon</code> in the Trait Panel to save
+                the current Glytchling shape, color, trait toggles, and mode
+                settings to the log.
+              </li>
+              <li>
+                Select a saved Glytchling from the log to load it back into the
+                app.
+              </li>
+              <li>
+                <code>Trash Icon</code> removes the selected saved Glytchling
+                from the log.
+              </li>
+              <li>
+                <code>Upload Log</code> imports a saved specimen log JSON file
+                and rebuilds thumbnails locally.
+              </li>
+              <li>
+                <code>Download Log</code> exports the current specimen log as a
+                JSON file.
+              </li>
+              <li>
+                <code
+                  >Clearing browser storage or cache on this device may remove
+                  your saved collection.</code
+                >
+              </li>
+            </ul>
+            <h4 class="helpSectionSubTitle">Copy Icon</h4>
+            <ul class="helpList">
+              <li>
+                Copies a shareable URL with the current
+                <code>shape</code> and <code>color</code> seeds, traits, and
+                mode settings.
+              </li>
+            </ul>
+            <h4 class="helpSectionSubTitle">Download Icon</h4>
+            <ul class="helpList">
+              <li>Saves the current rendered Glytchling view as a PNG.</li>
+              <li>
+                Filenames use a filesystem-safe version of the Glytchling name,
+                shape seed, and color seed. Unsupported characters are replaced
+                with <code>-</code>.
+              </li>
+            </ul>
+          </div>
+
+          <div class="helpSection">
+            <h3 class="helpSectionTitle">[ Control Panel ]</h3>
+            <h4 class="helpSectionSubTitle">Shape</h4>
+            <ul class="helpList">
+              <li>
+                Enter a <code>shape</code> seed and press <code>Load</code> to
+                restore a specific Glytchling form.
+              </li>
+            </ul>
+
+            <h4 class="helpSectionSubTitle">Color</h4>
+            <ul class="helpList">
+              <li>
+                Enter a <code>color</code> seed and press <code>Load</code> to
+                restore a specific palette.
+              </li>
+            </ul>
+            <h4 class="helpSectionSubTitle">Glytch</h4>
+            <ul class="helpList">
+              <li>
+                <code>Spawn</code> generates a new Glytchling with a random
+                shape seed and color seed.
+              </li>
+              <li>
+                <code>Color</code> generates a new color palette with a random
+                seed for current Glytchling shape.
+              </li>
+              <li>
+                <code>Cºrru_pt</code> randomizes Glytchling Traits toggles and
+                some Mode settings. <code>{Can produce extreme results!}</code>
+              </li>
+              <li>
+                <code>Restore</code> returns the current Glytchling to a clean,
+                readable baseline with all parts enabled and symmetrical.
+                <code>{Use when too Cºrru_pt!}</code>
+              </li>
+            </ul>
+            <h4 class="helpSectionSubTitle">Mode</h4>
+            <ul class="helpList">
+              <li>
+                <code>Sym</code> toggles all Glytchling part symmetry uniformly
+                on or off.
+              </li>
+              <li>
+                <code>CRT</code> toggles Glytchling monochrome terminal render
+                mode on or off.
+              </li>
+              <li>
+                <code>Gap</code> toggles Glytchling dome/core separation on or
+                off.
+              </li>
+              <li>
+                <code>Pulse</code> toggles Glytchling idle animation on or off.
+              </li>
+              <li><code>Pause Icon</code> freezes the current pulse frame.</li>
+            </ul>
+          </div>
+
+          <div class="helpSection">
+            <h3 class="helpSectionTitle">[ Trait Panel ]</h3>
+            <ul class="helpList">
+              <li>
+                Displays current Glytchling Name, Shape Seed, Color Seed, and
+                Selected Trait Color.
+              </li>
+              <li>
+                <code>Bookmark Icon</code> saves the current Glytchling shape,
+                color, trait toggles, and mode settings to the Specimen Log
+                without opening the log.
+              </li>
+              <li>Hover a trait to highlight it on the main Glytchling.</li>
+              <li>
+                Click a trait to pin that highlight until you click it again.
+              </li>
+              <li><code>On</code> enables or disables the part.</li>
+              <li><code>Sym</code> enables or disables the part symmetry.</li>
+              <li>
+                <code>Flip</code> swaps the side used when a part is
+                asymmetrical.
+              </li>
+            </ul>
+          </div>
+
+          <div class="helpSection">
+            <h3 class="helpSectionTitle">[ Source ]</h3>
+            <p class="helpCopy">
+              <a
+                class="helpRepoLink"
+                href="https://github.com/HeitzMike/glytchlings"
+                target="_blank"
+                rel="noreferrer"
+                >View the GitHub repo :D</a
+              >
+            </p>
+          </div>
         </div>
+        <div class="helpFooter">
+          <button
+            id="changelogButton"
+            class="helpVersionButton"
+            type="button"
+            aria-label="Open changelog"
+          >
+            [ build v1.0.1 ]
+          </button>
+        </div>
+      </section>
+    </div>
+
+    <div id="changelogOverlay" class="helpOverlay" aria-hidden="true">
+      <section
+        class="helpModal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="changelogTitle"
+      >
+        <div class="helpHeader">
+          <h2 id="changelogTitle" class="helpTitle">:> Changelog</h2>
+          <button
+            id="changelogCloseButton"
+            class="seedButton iconButton helpClose"
+            type="button"
+            aria-label="Close changelog"
+          >
+            X
+          </button>
+        </div>
+        <div id="changelogContent" class="helpCopy">Loading changelog...</div>
       </section>
     </div>
     <script
