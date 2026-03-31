@@ -85,7 +85,7 @@ const playCryButton = document.getElementById('playCryButton');
 const cryWaveCanvas = document.getElementById('cryWaveCanvas');
 const fullscreenOverlay = document.getElementById('fullscreenOverlay');
 const fullscreenCanvas = document.getElementById('fullscreenCanvas');
-const fullscreenCtx = fullscreenCanvas.getContext('2d');
+const fullscreenCtx = fullscreenCanvas?.getContext('2d') ?? null;
 
 const glytchlingOffsetX = (canvas.width - GLYTCHLING_WIDTH) / 2;
 // Keep one sprite-pixel of breathing room above the highest animated top parts
@@ -476,6 +476,8 @@ function setChangelogOpen(isOpen) {
 }
 
 function updateFullscreenCanvasSize() {
+  if (!fullscreenCanvas) return;
+
   const viewportWidth = window.innerWidth - 20;
   const viewportHeight = window.innerHeight - 20;
   const scale = Math.max(
@@ -488,6 +490,8 @@ function updateFullscreenCanvasSize() {
 }
 
 function setFullscreenOpen(isOpen) {
+  if (!fullscreenOverlay || !fullscreenCanvas || !fullscreenCtx) return;
+
   fullscreenOpen = Boolean(isOpen);
   fullscreenOverlay.classList.toggle('isOpen', fullscreenOpen);
   fullscreenOverlay.setAttribute('aria-hidden', String(!fullscreenOpen));
@@ -2886,6 +2890,11 @@ function animate() {
   );
 
   if (fullscreenOpen) {
+    if (!fullscreenCtx || !fullscreenCanvas) {
+      requestAnimationFrame(animate);
+      return;
+    }
+
     fullscreenCtx.clearRect(
       0,
       0,
@@ -3322,7 +3331,7 @@ helpInspectorSettingButton.addEventListener('change', () => {
   persistUserSettings();
   syncPresentationButtons();
 });
-fullscreenViewButton.addEventListener('change', () => {
+fullscreenViewButton?.addEventListener('change', () => {
   setFullscreenOpen(fullscreenViewButton.checked);
 });
 terminalModeButton.addEventListener('click', () => {
@@ -3431,7 +3440,7 @@ favoritesList.addEventListener('click', (event) => {
     setFavoritesOpen(false);
   }
 });
-fullscreenOverlay.addEventListener('click', () => {
+fullscreenOverlay?.addEventListener('click', () => {
   setFullscreenOpen(false);
 });
 window.addEventListener('keydown', (event) => {
