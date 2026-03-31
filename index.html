@@ -116,42 +116,32 @@
         margin: 0 auto;
       }
 
-      .toolbar {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        gap: 12px;
-        margin-bottom: 24px;
-        padding: 14px 16px;
-        border: 1px dashed var(--line-strong);
-        background: var(--panel);
-        box-shadow: inset 0 0 0 1px rgba(132, 255, 146, 0.04);
-      }
-
-      .toolbarGroup {
-        display: flex;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 8px;
-      }
-
-      .toolbarGroup:last-of-type {
-        padding-right: 0;
-        margin-right: 0;
-        border-right: 0;
-      }
-
-      .toolbarSpacer {
-        flex: 1 1 auto;
-        min-width: 24px;
-      }
-
-      .toolbarLabel {
-        align-self: center;
+      .toolbarLegend {
+        margin-left: 10px;
+        padding: 0 10px;
         color: var(--text-dim);
         font-size: 20px;
         letter-spacing: 0.06em;
         text-transform: uppercase;
+      }
+
+      .toolbarButtonRow {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        width: 100%;
+      }
+
+      .toolbarButtonRow > * {
+        flex: 1 1 0;
+        min-width: 0;
+      }
+
+      .toolbarButtonRow > .toolbarButtonCompact {
+        flex: 0 0 auto;
+        min-width: fit-content;
+        padding-left: 10px;
+        padding-right: 10px;
       }
 
       .heroHeader {
@@ -183,6 +173,7 @@
         display: flex;
         gap: 8px;
         padding-top: 6px;
+        z-index: 2;
       }
 
       .tagline {
@@ -204,7 +195,7 @@
       }
 
       .pageFooter {
-        margin-top: 18px;
+        margin-top: 50px;
         padding-bottom: 8px;
         text-align: center;
         color: var(--text-dim);
@@ -218,9 +209,12 @@
       }
 
       .canvasPanel {
+        position: relative;
         display: flex;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
+        gap: 14px;
         max-width: 100%;
         min-width: 260px;
         min-height: 260px;
@@ -230,34 +224,162 @@
         box-shadow: inset 0 0 0 1px rgba(132, 255, 146, 0.04);
       }
 
+      .panelCornerButton {
+        position: absolute;
+        top: 4px;
+        right: 12px;
+        z-index: 1;
+      }
+
+      .canvasColumn {
+        display: flex;
+        flex: 0 0 340px;
+        flex-direction: column;
+        gap: 28px;
+        width: 340px;
+        min-width: 340px;
+        max-width: 340px;
+        padding-top: 20px;
+      }
+
+      .canvasInfoRow {
+        display: grid;
+        grid-template-columns: 68px minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 10px;
+        width: min(100%, 280px);
+        margin: 0;
+        color: var(--text-dim);
+        font-size: 22px;
+        text-align: left;
+      }
+
+      .canvasInfoLabel {
+        white-space: nowrap;
+      }
+
+      .canvasInfoValue {
+        min-width: 0;
+      }
+
+      #nameValue {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .canvasActions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+      }
+
+      .spawnButton {
+        align-self: center;
+        width: min(248px, calc(100% - 40px));
+        padding: 12px 24px;
+        font-size: 25px !important;
+        margin-bottom: 10px;
+      }
+
       .inspector {
-        width: 350px;
-        max-width: 100%;
+        position: relative;
+        flex: 0 0 500px;
+        width: 500px;
+        min-width: 500px;
+        max-width: 500px;
         padding: 18px;
         border: 1px dashed var(--line);
-        background: var(--panel-strong);
+        background: var(--panel);
         box-shadow: inset 0 0 0 1px rgba(132, 255, 146, 0.04);
       }
 
-      .inspectorHeader {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 10px;
-        margin-bottom: 8px;
+      .inspector[hidden] {
+        display: none;
       }
 
-      .inspectorTitle {
-        margin: 0;
-        font-size: 24px;
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
+      .inspectorTabs {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 18px;
+      }
+
+      .inspectorControls {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-bottom: 10px;
+        padding-top: 15px;
+        border-top: 1px dashed var(--line);
+      }
+
+      .inspectorControls[hidden] {
+        display: none;
+      }
+
+      .inspectorControls .seedForm {
+        width: 100%;
+      }
+
+      .inspectorControls .toolbarButtonRow {
+        width: 100%;
+      }
+
+      .identityForm {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto auto;
+        gap: 8px;
+        width: 100%;
+      }
+
+      .inspectorTabButton {
+        position: relative;
+        top: 1px;
+        border-bottom-style: solid;
+      }
+
+      .inspectorTabButton.isOn {
+        box-shadow:
+          inset 0 0 0 1px rgba(132, 255, 146, 0.08),
+          0 0 18px var(--glow);
       }
 
       .traitList {
         list-style: none;
         padding: 0;
         margin: 0;
+      }
+
+      .identityRow {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        min-width: 0;
+        padding: 10px;
+        border-bottom: 1px dashed var(--line);
+      }
+
+      .identityRow:first-child {
+        border-top: 1px dashed var(--line);
+        margin-top: 20px;
+      }
+
+      .identityLabel {
+        color: var(--text-dim);
+        white-space: nowrap;
+        font-size: 22px;
+      }
+
+      .identityValue {
+        color: var(--text);
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        flex: 1 1 auto;
       }
 
       .traitRow {
@@ -312,8 +434,12 @@
 
       .traitValue {
         color: var(--text);
+        font-size: 21px;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
         white-space: nowrap;
-        flex-shrink: 0;
+        flex: 1 1 auto;
       }
 
       .traitPreview {
@@ -323,6 +449,81 @@
         border: 1px dashed var(--line);
         image-rendering: pixelated;
         box-shadow: inset 0 0 16px rgba(132, 255, 146, 0.04);
+      }
+
+      .colorPreview {
+        background: rgba(0, 0, 0, 0.36);
+      }
+
+      .cryRow {
+        width: min(100%, 280px);
+        margin: 0 0 6px;
+      }
+
+      .cryBody {
+        display: flex;
+        align-items: center;
+        gap: 0;
+        min-width: 0;
+        width: 100%;
+        overflow: hidden;
+      }
+
+      .crySignature {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        min-width: 0;
+        width: 100%;
+        color: var(--text-dim);
+        line-height: 1;
+      }
+
+      .crySignatureButton {
+        display: inline-flex;
+        align-items: center;
+        justify-content: flex-start;
+        width: 100%;
+        min-width: 0;
+        min-height: 35px;
+        padding: 3px 8px;
+        border: 1px dashed var(--line);
+        background: var(--button);
+        color: var(--text);
+        line-height: 1;
+        box-shadow: inset 0 0 0 1px rgba(132, 255, 146, 0.04);
+        font: inherit;
+        text-align: left;
+        cursor: pointer;
+      }
+
+      .crySignatureButton:hover {
+        background: var(--button-active);
+        border-color: var(--line-strong);
+      }
+
+      .crySignatureButton:focus-visible {
+        outline: 1px solid rgba(184, 255, 191, 0.75);
+        outline-offset: 3px;
+      }
+
+      .crySignature canvas {
+        width: 100%;
+        max-width: 180px;
+        height: 24px;
+        min-width: 0;
+        flex: 1 1 auto;
+        background: rgba(0, 0, 0, 0.28);
+        border: 0;
+        box-shadow: none;
+      }
+
+      .cryPlayGlyph {
+        flex: 0 0 auto;
+        width: 10px;
+        height: 10px;
+        fill: currentColor;
+        opacity: 0.9;
       }
 
       canvas {
@@ -351,12 +552,13 @@
         display: flex;
         align-items: center;
         gap: 4px;
+        min-width: 0;
         color: var(--text-dim);
         font-size: 18px;
         text-transform: uppercase;
       }
 
-      .partToggle input {
+      .partToggle input[type='checkbox'] {
         margin: 0;
         appearance: none;
         -webkit-appearance: none;
@@ -369,7 +571,7 @@
         flex-shrink: 0;
       }
 
-      .partToggle input:checked {
+      .partToggle input[type='checkbox']:checked {
         background:
           radial-gradient(
             circle,
@@ -383,14 +585,27 @@
           0 0 10px rgba(132, 255, 146, 0.22);
       }
 
-      .partToggle input:focus-visible {
+      .partToggle input[type='checkbox']:focus-visible {
         outline: 1px solid rgba(184, 255, 191, 0.75);
         outline-offset: 2px;
+      }
+
+      .partToggle input[type='range'] {
+        width: 100%;
+        min-width: 0;
+        accent-color: #84ff92;
       }
 
       .partControls {
         display: flex;
         gap: 12px;
+        width: 100%;
+        min-width: 0;
+      }
+
+      .colorControls {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
       }
 
       .seedInput {
@@ -406,12 +621,17 @@
 
       .regenerateButton,
       .seedButton {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 43px;
         padding: 9px 12px;
         border: 1px dashed var(--line);
         background: var(--button);
         color: var(--text);
         font: inherit;
         font-size: 22px;
+        line-height: 1;
         letter-spacing: 0.04em;
         text-transform: uppercase;
         cursor: pointer;
@@ -443,23 +663,20 @@
           0 0 18px var(--glow);
       }
 
+      .seedButton:disabled {
+        cursor: not-allowed;
+        color: rgba(184, 255, 191, 0.38);
+        border-color: rgba(114, 197, 125, 0.14);
+        background: rgba(11, 26, 17, 0.45);
+        box-shadow: none;
+        opacity: 0.72;
+      }
+
       @media (max-width: 848px) and (min-width: 721px) {
-        .toolbarSpacer {
-          display: none;
-        }
-
-        .seedToolbarGroup {
-          width: 100%;
-          align-items: flex-start;
-        }
-
-        .seedToolbarGroup .seedForm {
-          flex: 1 1 0;
-          width: 100%;
-        }
-
-        .inspectorTitle,
+        .canvasInfoRow,
         .seedRow,
+        .cryRow,
+        .toolbarLegend,
         .traitLabel,
         .traitValue {
           font-size: 21px;
@@ -468,6 +685,9 @@
         .partToggle {
           font-size: 17px;
         }
+      }
+
+      @media (max-width: 763px) {
       }
 
       .helpOverlay {
@@ -551,8 +771,15 @@
         letter-spacing: 0.04em;
         text-transform: uppercase;
       }
+
+      .helpSettingsRow {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
       .helpSectionSubTitle {
-        margin: 0 0 8px;
+        margin: 8px 0 8px;
         color: var(--text);
         font-size: 20px;
         letter-spacing: 0.04em;
@@ -594,6 +821,40 @@
       .helpVersionButton:hover {
         color: #d4ffd9;
         border-color: var(--line-strong);
+      }
+
+      .fullscreenOverlay {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px;
+        background:
+          radial-gradient(
+            circle at center,
+            rgba(20, 48, 28, 0.22),
+            rgba(2, 7, 4, 0.96) 62%
+          ),
+          rgba(2, 7, 4, 0.98);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 140ms ease;
+        z-index: 12;
+        cursor: pointer;
+      }
+
+      .fullscreenOverlay.isOpen {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .fullscreenCanvas {
+        display: block;
+        background: #010402;
+        border: 1px dashed var(--line-strong);
+        box-shadow: 0 0 36px rgba(132, 255, 146, 0.14);
+        image-rendering: pixelated;
       }
 
       .changelogItem {
@@ -786,9 +1047,11 @@
         }
 
         .titleActions {
-          position: static;
-          width: 100%;
-          justify-content: center;
+          position: absolute;
+          top: 0;
+          right: 0;
+          width: auto;
+          justify-content: flex-end;
           padding-top: 0;
         }
 
@@ -797,24 +1060,11 @@
           padding-bottom: 10px;
         }
 
-        .toolbar {
-          gap: 10px;
-          margin-bottom: 16px;
-          padding: 12px;
+        .canvasActions {
+          gap: 6px;
         }
 
-        .toolbarSpacer {
-          display: none;
-        }
-
-        .toolbarGroup {
-          width: 100%;
-          align-items: flex-start;
-        }
-
-        .toolbarLabel {
-          align-self: center;
-          min-width: 56px;
+        .toolbarLegend {
           font-size: 18px;
         }
 
@@ -839,27 +1089,6 @@
         }
 
         .helpModal {
-          padding: 14px;
-        }
-
-        .content {
-          flex-direction: column;
-          align-items: stretch;
-          gap: 16px;
-          min-height: 0;
-        }
-
-        .canvasPanel {
-          width: 100%;
-          max-width: 100%;
-          min-height: auto;
-          padding: 16px;
-          overflow-x: auto;
-        }
-
-        .inspector {
-          width: 100%;
-          max-width: 100%;
           padding: 14px;
         }
 
@@ -890,8 +1119,10 @@
           gap: 10px;
         }
 
-        .inspectorTitle,
+        .canvasInfoRow,
         .seedRow,
+        .cryRow,
+        .toolbarLegend,
         .traitLabel,
         .traitValue,
         .pageFooter {
@@ -900,6 +1131,37 @@
 
         .partToggle {
           font-size: 17px;
+        }
+      }
+
+      @media (max-width: 860px) {
+        .content {
+          flex-direction: column;
+          align-items: center;
+          gap: 16px;
+          min-height: 0;
+        }
+
+        .canvasColumn {
+          width: min(631px, 100%);
+          min-width: 0;
+          max-width: 100%;
+        }
+
+        .canvasPanel {
+          width: min(631px, 100%);
+          max-width: 100%;
+          min-height: auto;
+          padding: 16px;
+          overflow-x: auto;
+        }
+
+        .inspector {
+          min-width: 0;
+          width: min(631px, 100%);
+          max-width: 100%;
+          flex-basis: auto;
+          padding: 14px;
         }
       }
 
@@ -913,13 +1175,7 @@
           line-height: 1;
         }
 
-        .toolbar {
-          padding: 10px;
-        }
-
-        .toolbarLabel {
-          align-self: center;
-          min-width: 48px;
+        .toolbarLegend {
           font-size: 17px;
         }
 
@@ -943,8 +1199,13 @@
           font-size: 20px;
         }
 
+        .canvasColumn {
+          margin-top: 20px;
+          width: 100%;
+        }
+
         .canvasPanel {
-          padding: 10px;
+          padding: 15px 10px 10px 10px;
           overflow-x: auto;
         }
 
@@ -955,8 +1216,10 @@
 
         .traitLabel,
         .traitValue,
+        .canvasInfoRow,
         .seedRow,
-        .inspectorTitle,
+        .cryRow,
+        .toolbarLegend,
         .pageFooter {
           font-size: 20px;
         }
@@ -992,17 +1255,7 @@
           min-width: 34px;
         }
 
-        .toolbar {
-          gap: 8px;
-        }
-
-        .toolbarGroup {
-          gap: 6px;
-        }
-
-        .toolbarLabel {
-          align-self: center;
-          min-width: 42px;
+        .toolbarLegend {
           font-size: 15px;
         }
 
@@ -1010,8 +1263,10 @@
           font-size: 18px;
         }
 
-        .inspectorTitle,
+        .canvasInfoRow,
         .seedRow,
+        .cryRow,
+        .toolbarLegend,
         .traitLabel,
         .traitValue,
         .pageFooter {
@@ -1050,26 +1305,13 @@
           min-width: 34px;
         }
 
-        .toolbar {
-          gap: 8px;
-        }
-
-        .toolbarGroup {
-          gap: 6px;
-        }
-
-        .toolbarLabel {
-          align-self: center;
-          min-width: 42px;
-          font-size: 15px;
-        }
-
         .seedInput {
           font-size: 18px;
         }
 
-        .inspectorTitle,
+        .canvasInfoRow,
         .seedRow,
+        .cryRow,
         .traitLabel,
         .traitValue,
         .pageFooter {
@@ -1139,153 +1381,251 @@
           >
             ?
           </button>
-          <button
-            id="favoritesButton"
-            class="seedButton iconButton"
-            type="button"
-            aria-label="Open Glytchling favorites"
-          >
-            <svg class="buttonIcon" viewBox="0 0 16 16" aria-hidden="true">
-              <path
-                d="M2 2h5l1 1 1-1h5v11H9l-1 1-1-1H2V2zm1 2v7h4V4H3zm6 0v7h4V4H9z"
-              />
-            </svg>
-          </button>
-
-          <button
-            id="shareButton"
-            class="seedButton iconButton"
-            type="button"
-            aria-label="Copy Glytchling link"
-          >
-            <svg class="buttonIcon" viewBox="0 0 16 16" aria-hidden="true">
-              <path
-                d="M2 1h7v2H4v5H2V1zm5 3h7v11H7V4zm2 2v7h3v-2h-1V9h1V6H9z"
-              />
-            </svg>
-          </button>
-          <button
-            id="downloadButton"
-            class="seedButton iconButton"
-            type="button"
-            aria-label="Download Glytchling image"
-          >
-            <svg class="buttonIcon" viewBox="0 0 16 16" aria-hidden="true">
-              <path
-                d="M7 1h2v6h2L8 10 5 7h2V1zm-4 9h10v4H3v-4zm2 2v1h6v-1H5z"
-              />
-            </svg>
-          </button>
         </div>
       </header>
-      <!-- Global controls are grouped by purpose: shape seed, color seed, then
-           global actions / view toggles. -->
-      <section class="toolbar">
-        <div class="toolbarGroup seedToolbarGroup">
-          <span class="toolbarLabel">Shape:</span>
-          <form id="shapeSeedForm" class="seedForm">
-            <input
-              id="shapeSeedInput"
-              class="seedInput"
-              type="number"
-              step="1"
-              min="0"
-              placeholder="Shape seed"
-            />
-            <button class="seedButton" type="submit">Load</button>
-          </form>
-        </div>
-        <div class="toolbarSpacer"></div>
-        <div class="toolbarGroup seedToolbarGroup">
-          <span class="toolbarLabel">Color:</span>
-          <form id="colorSeedForm" class="seedForm">
-            <input
-              id="colorSeedInput"
-              class="seedInput"
-              type="number"
-              step="1"
-              min="0"
-              placeholder="Color seed"
-            />
-            <button class="seedButton" type="submit">Load</button>
-          </form>
-        </div>
-        <div class="toolbarGroup">
-          <span class="toolbarLabel">Glytch:</span>
-          <button id="regenerateButton" class="regenerateButton">Spawn</button>
-          <button id="recolorButton" class="seedButton" type="button">
-            Color
-          </button>
-          <button id="glitchButton" class="seedButton" type="button">
-            Cºrru_pt
-          </button>
-          <button id="restoreButton" class="seedButton" type="button">
-            Restore
-          </button>
-        </div>
-        <div class="toolbarSpacer"></div>
-        <div class="toolbarGroup">
-          <span class="toolbarLabel">Mode:</span>
-          <button id="symmetryAllButton" class="seedButton" type="button">
-            Sym
-          </button>
-          <button id="terminalModeButton" class="seedButton" type="button">
-            CRT
-          </button>
-          <button id="neckButton" class="seedButton isOn" type="button">
-            Gap
-          </button>
-          <button id="headBobButton" class="seedButton isOn" type="button">
-            Pulse
-          </button>
-          <button
-            id="pauseBobButton"
-            class="seedButton"
-            type="button"
-            aria-label="Pause head bob"
-          >
-            <svg class="buttonIcon" viewBox="0 0 16 16" aria-hidden="true">
-              <path d="M4 2h3v12H4V2zm5 0h3v12H9V2z" />
-            </svg>
-          </button>
-        </div>
-      </section>
-
       <!-- Main content keeps the glytchling preview and inspector side-by-side so
            the generated anatomy and its metadata can be scanned together. -->
       <section class="content">
-        <div class="canvasPanel">
-          <canvas id="c" width="280" height="280"></canvas>
-        </div>
-        <aside class="inspector">
-          <div class="inspectorHeader">
-            <h1 class="inspectorTitle">:> Glytchling Traits</h1>
+        <div class="canvasColumn">
+          <fieldset class="canvasPanel">
+            <legend class="toolbarLegend">Glytchling</legend>
             <button
-              id="inspectorFavoriteButton"
-              class="seedButton iconButton"
+              id="showInspectorButton"
+              class="seedButton iconButton panelCornerButton"
               type="button"
-              aria-label="Save current Glytchling to specimen log"
+              aria-label="Open inspector"
             >
               <svg class="buttonIcon" viewBox="0 0 16 16" aria-hidden="true">
-                <path d="M3 1h10v14l-5-3-5 3V1zm2 2v8.5l3-1.8 3 1.8V3H5z" />
+                <path
+                  d="M7 2a5 5 0 1 0 3.54 8.54l2.96 2.96 1.5-1.5-2.96-2.96A5 5 0 0 0 7 2zm0 2a3 3 0 1 1 0 6 3 3 0 0 1 0-6z"
+                />
               </svg>
             </button>
+            <p class="canvasInfoRow">
+              <span class="canvasInfoLabel">Name:</span>
+              <span id="nameValue" class="seedValue canvasInfoValue"></span>
+              <span aria-hidden="true"></span>
+            </p>
+            <p class="canvasInfoRow">
+              <span class="canvasInfoLabel">Type:</span>
+              <span id="natureValue" class="seedValue canvasInfoValue"></span>
+              <span aria-hidden="true"></span>
+            </p>
+            <div class="canvasInfoRow cryRow">
+              <span class="canvasInfoLabel">Cry:</span>
+              <div class="cryBody">
+                <button
+                  id="playCryButton"
+                  class="crySignature crySignatureButton"
+                  type="button"
+                  aria-label="Play Glytchling cry"
+                >
+                  <svg
+                    class="cryPlayGlyph"
+                    viewBox="0 0 16 16"
+                    aria-hidden="true"
+                  >
+                    <path d="M4 3l9 5-9 5V3z" />
+                  </svg>
+                  <canvas id="cryWaveCanvas" width="180" height="28"></canvas>
+                </button>
+              </div>
+              <span aria-hidden="true"></span>
+            </div>
+            <canvas id="c" width="280" height="320"></canvas>
+            <div class="canvasActions">
+              <button
+                id="favoritesButton"
+                class="seedButton iconButton"
+                type="button"
+                aria-label="Open Glytchling favorites"
+              >
+                <svg class="buttonIcon" viewBox="0 0 16 16" aria-hidden="true">
+                  <path
+                    d="M2 2h5l1 1 1-1h5v11H9l-1 1-1-1H2V2zm1 2v7h4V4H3zm6 0v7h4V4H9z"
+                  />
+                </svg>
+              </button>
+              <button
+                id="shareButton"
+                class="seedButton iconButton"
+                type="button"
+                aria-label="Copy Glytchling link"
+              >
+                <svg class="buttonIcon" viewBox="0 0 16 16" aria-hidden="true">
+                  <path
+                    d="M2 1h7v2H4v5H2V1zm5 3h7v11H7V4zm2 2v7h3v-2h-1V9h1V6H9z"
+                  />
+                </svg>
+              </button>
+              <button
+                id="downloadButton"
+                class="seedButton iconButton"
+                type="button"
+                aria-label="Download Glytchling image"
+              >
+                <svg class="buttonIcon" viewBox="0 0 16 16" aria-hidden="true">
+                  <path
+                    d="M7 1h2v6h2L8 10 5 7h2V1zm-4 9h10v4H3v-4zm2 2v1h6v-1H5z"
+                  />
+                </svg>
+              </button>
+              <button
+                id="inspectorFavoriteButton"
+                class="seedButton iconButton"
+                type="button"
+                aria-label="Save current Glytchling to specimen log"
+              >
+                <svg class="buttonIcon" viewBox="0 0 16 16" aria-hidden="true">
+                  <path d="M3 1h10v14l-5-3-5 3V1zm2 2v8.5l3-1.8 3 1.8V3H5z" />
+                </svg>
+              </button>
+            </div>
+          </fieldset>
+          <button id="spawnButton" class="seedButton spawnButton" type="button">
+            SPAWN!
+          </button>
+        </div>
+        <fieldset class="inspector" hidden>
+          <legend class="toolbarLegend">Inspector</legend>
+          <button
+            id="hideInspectorButton"
+            class="seedButton iconButton panelCornerButton"
+            type="button"
+            aria-label="Hide inspector"
+          >
+            <svg class="buttonIcon" viewBox="0 0 16 16" aria-hidden="true">
+              <path d="M3 5l2-2 3 3 3-3 2 2-3 3 3 3-2 2-3-3-3 3-2-2 3-3-3-3z" />
+            </svg>
+          </button>
+          <div class="inspectorTabs" role="tablist" aria-label="Inspector view">
+            <button
+              id="shapeInspectorTab"
+              class="seedButton inspectorTabButton isOn"
+              type="button"
+              role="tab"
+              aria-selected="true"
+            >
+              Shape
+            </button>
+            <button
+              id="colorInspectorTab"
+              class="seedButton inspectorTabButton"
+              type="button"
+              role="tab"
+              aria-selected="false"
+            >
+              Color
+            </button>
+            <button
+              id="identityInspectorTab"
+              class="seedButton inspectorTabButton"
+              type="button"
+              role="tab"
+              aria-selected="false"
+            >
+              Identity
+            </button>
           </div>
-          <p class="seedRow">
-            Name: <span id="nameValue" class="seedValue"></span>
-          </p>
-          <p class="seedRow">
-            Shape: <span id="seedValue" class="seedValue"></span>
-          </p>
-          <p class="seedRow">
-            Color: <span id="colorSeedValue" class="seedValue"></span>
-          </p>
-          <p class="seedRow">
-            Trait Color: <span id="traitColorValue" class="seedValue"></span>
-          </p>
-
+          <div id="shapeInspectorControls" class="inspectorControls">
+            <form id="shapeSeedForm" class="seedForm">
+              <input
+                id="shapeSeedInput"
+                class="seedInput"
+                type="number"
+                step="1"
+                min="0"
+                placeholder="Shape seed"
+              />
+              <button class="seedButton" type="submit">Load</button>
+            </form>
+            <div class="toolbarButtonRow">
+              <button
+                id="regenerateButton"
+                class="regenerateButton"
+                type="button"
+              >
+                Reshape
+              </button>
+              <button id="glitchButton" class="seedButton" type="button">
+                Cºrru_pt
+              </button>
+              <button
+                id="symmetryAllButton"
+                class="seedButton toolbarButtonCompact"
+                type="button"
+              >
+                Sym
+              </button>
+              <button
+                id="headBobButton"
+                class="seedButton isOn toolbarButtonCompact"
+                type="button"
+              >
+                Anim
+              </button>
+              <button id="restoreButton" class="seedButton" type="button">
+                Restore
+              </button>
+            </div>
+          </div>
+          <div id="colorInspectorControls" class="inspectorControls" hidden>
+            <form id="colorSeedForm" class="seedForm">
+              <input
+                id="colorSeedInput"
+                class="seedInput"
+                type="number"
+                step="1"
+                min="0"
+                placeholder="Color seed"
+              />
+              <button class="seedButton" type="submit">Load</button>
+            </form>
+            <div class="toolbarButtonRow">
+              <button id="recolorButton" class="seedButton" type="button">
+                Recolor
+              </button>
+              <button id="desyncColorButton" class="seedButton" type="button">
+                DẹSyn¢
+              </button>
+              <button
+                id="terminalModeButton"
+                class="seedButton toolbarButtonCompact"
+                type="button"
+              >
+                CRT
+              </button>
+              <button
+                id="invertColorButton"
+                class="seedButton toolbarButtonCompact"
+                type="button"
+              >
+                INVRT
+              </button>
+              <button id="restoreColorButton" class="seedButton" type="button">
+                Restore
+              </button>
+            </div>
+          </div>
+          <div id="identityInspectorControls" class="inspectorControls" hidden>
+            <form id="identityNameForm" class="identityForm">
+              <input
+                id="identityNameInput"
+                class="seedInput"
+                type="text"
+                maxlength="30"
+                placeholder="Glytchling name"
+              />
+              <button id="nicknameButton" class="seedButton" type="submit">
+                Nickname
+              </button>
+              <button id="restoreNameButton" class="seedButton" type="button">
+                Restore
+              </button>
+            </form>
+          </div>
           <ul id="traitList" class="traitList"></ul>
-        </aside>
+        </fieldset>
       </section>
       <footer class="pageFooter">
         <a
@@ -1323,8 +1663,11 @@
           accept=".json,application/json"
           hidden
         />
+        <p id="favoritesCount" class="helpCopy favoritesStatus">
+          Collection: 0/200
+        </p>
         <p id="favoritesStatus" class="helpCopy favoritesStatus">
-          Last action: none
+          Last Action: none
         </p>
         <p id="favoritesEmpty" class="helpCopy favoritesEmpty">
           Add a Glytchling to start your log.
@@ -1377,21 +1720,87 @@
           </p>
 
           <div class="helpSection">
-            <h3 class="helpSectionTitle">[ Utility Menu ]</h3>
-            <h4 class="helpSectionSubTitle">Help Icon</h4>
+            <h3 class="helpSectionTitle">User Settings</h3>
+            <div class="helpSettingsRow">
+              <label class="partToggle" for="helpMuteSettingButton">
+                <input id="helpMuteSettingButton" type="checkbox" />
+                <span>Mute Audio On Glytchling Generation</span>
+              </label>
+              <label class="partToggle" for="helpInspectorSettingButton">
+                <input id="helpInspectorSettingButton" type="checkbox" />
+                <span>Enable Inspector Panel On Start</span>
+              </label>
+              <label class="partToggle" for="fullscreenViewButton">
+                <input id="fullscreenViewButton" type="checkbox" />
+                <span>View Glytchling Fullscreen. Click to exit</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="helpSection">
+            <h3 class="helpSectionTitle">[ Spawn! Button ]</h3>
             <ul class="helpList">
-              <li>Opens the System Help menu.</li>
+              Generates a completely new shape and color seeded Glytchling with
+              default Inspector toggles.
             </ul>
-            <h4 class="helpSectionSubTitle">Book Icon</h4>
+          </div>
+
+          <div class="helpSection">
+            <h3 class="helpSectionTitle">[ Glytchling Panel ]</h3>
+            <ul class="helpList"></ul>
             <ul class="helpList">
-              <li>Opens the Specimen Log.</li>
               <li>
-                Use the <code>Bookmark Icon</code> in the Trait Panel to save
-                the current Glytchling shape, color, trait toggles, and mode
-                settings to the log.
+                <code>Magnifying Glass Icon</code> opens the
+                <code>Inspector Panel</code>, see section below.
               </li>
               <li>
-                Select a saved Glytchling from the log to load it back into the
+                <code>Name</code> is the generated Glytchling's name or
+                nickname.
+              </li>
+              <li>
+                <code>Type</code> displays combined motion energy family and cry
+                family.
+              </li>
+              <li>
+                <code>Cry</code> shows the current cry waveform. Click it to
+                play Glytchling's cry.
+              </li>
+              <li>
+                <code>Book Icon</code> opens the <code>Specimen Log</code>, see
+                section below.
+              </li>
+              <li>
+                <code>Copy Icon</code> copies a shareable URL with the current
+                shape and color seeds, and any Inspector customizations.
+              </li>
+              <li>
+                <code>Download Icon</code>
+                saves the current rendered Glytchling as a PNG.
+              </li>
+              <li>
+                <code>Bookmark Icon</code> saves the current Glytchling shape,
+                color, and Inspector customizations to the log.
+              </li>
+            </ul>
+          </div>
+
+          <div class="helpSection">
+            <h3 class="helpSectionTitle">[ Specimen Log ]</h3>
+            <ul class="helpList">
+              <li>
+                <code>Collection</code> shows the amount of saved Glytchlings
+                out of the 200 limit.
+              </li>
+              <li>
+                <code>Last Action</code> shows the last performed specimen log
+                action.
+              </li>
+              <li>
+                A hidden alert can display if log is full or issues uploading a
+                log file.
+              </li>
+              <li>
+                Click a saved Glytchling from the log to load it back into the
                 app.
               </li>
               <li>
@@ -1413,104 +1822,89 @@
                 >
               </li>
             </ul>
-            <h4 class="helpSectionSubTitle">Copy Icon</h4>
-            <ul class="helpList">
-              <li>
-                Copies a shareable URL with the current
-                <code>shape</code> and <code>color</code> seeds, traits, and
-                mode settings.
-              </li>
-            </ul>
-            <h4 class="helpSectionSubTitle">Download Icon</h4>
-            <ul class="helpList">
-              <li>Saves the current rendered Glytchling view as a PNG.</li>
-              <li>
-                Filenames use a filesystem-safe version of the Glytchling name,
-                shape seed, and color seed. Unsupported characters are replaced
-                with <code>-</code>.
-              </li>
-            </ul>
           </div>
 
           <div class="helpSection">
-            <h3 class="helpSectionTitle">[ Control Panel ]</h3>
-            <h4 class="helpSectionSubTitle">Shape</h4>
+            <h3 class="helpSectionTitle">[ Inspector Panel ]</h3>
+            <h4 class="helpSectionSubTitle">Shape Tab</h4>
             <ul class="helpList">
               <li>
                 Enter a <code>shape</code> seed and press <code>Load</code> to
                 restore a specific Glytchling form.
               </li>
-            </ul>
-
-            <h4 class="helpSectionSubTitle">Color</h4>
-            <ul class="helpList">
               <li>
-                Enter a <code>color</code> seed and press <code>Load</code> to
-                restore a specific palette.
-              </li>
-            </ul>
-            <h4 class="helpSectionSubTitle">Glytch</h4>
-            <ul class="helpList">
-              <li>
-                <code>Spawn</code> generates a new Glytchling with a random
-                shape seed and color seed.
+                <code>Reshape</code> rolls a new shape seed while keeping the
+                current color seed and toggle state.
               </li>
               <li>
-                <code>Color</code> generates a new color palette with a random
-                seed for current Glytchling shape.
+                <code>Cºrru_pt</code> randomizes the Shape Inspector toggles
+                without changing the current seeds.
               </li>
+              <li><code>Sym</code> toggles all part symmetry on or off.</li>
+              <li><code>Anim</code> toggles all part animation on or off.</li>
               <li>
-                <code>Cºrru_pt</code> randomizes Glytchling Traits toggles and
-                some Mode settings. <code>{Can produce extreme results!}</code>
+                <code>Restore</code> returns the current Glytchling to its base
+                readable baseline with all parts enabled, symmetrical, and
+                unflipped.
               </li>
+              <h4 class="helpSectionSubTitle">Per Part Controls</h4>
+              <li>Hover a part to highlight it on the main Glytchling.</li>
               <li>
-                <code>Restore</code> returns the current Glytchling to a clean,
-                readable baseline with all parts enabled and symmetrical.
-                <code>{Use when too Cºrru_pt!}</code>
-              </li>
-            </ul>
-            <h4 class="helpSectionSubTitle">Mode</h4>
-            <ul class="helpList">
-              <li>
-                <code>Sym</code> toggles all Glytchling part symmetry uniformly
-                on or off.
-              </li>
-              <li>
-                <code>CRT</code> toggles Glytchling monochrome terminal render
-                mode on or off.
-              </li>
-              <li>
-                <code>Gap</code> toggles Glytchling dome/core separation on or
-                off.
-              </li>
-              <li>
-                <code>Pulse</code> toggles Glytchling idle animation on or off.
-              </li>
-              <li><code>Pause Icon</code> freezes the current pulse frame.</li>
-            </ul>
-          </div>
-
-          <div class="helpSection">
-            <h3 class="helpSectionTitle">[ Trait Panel ]</h3>
-            <ul class="helpList">
-              <li>
-                Displays current Glytchling Name, Shape Seed, Color Seed, and
-                Selected Trait Color.
-              </li>
-              <li>
-                <code>Bookmark Icon</code> saves the current Glytchling shape,
-                color, trait toggles, and mode settings to the Specimen Log
-                without opening the log.
-              </li>
-              <li>Hover a trait to highlight it on the main Glytchling.</li>
-              <li>
-                Click a trait to pin that highlight until you click it again.
+                Click a part to pin that highlight until you click it again.
               </li>
               <li><code>On</code> enables or disables the part.</li>
               <li><code>Sym</code> enables or disables the part symmetry.</li>
               <li>
                 <code>Flip</code> swaps the side used when a part is
                 asymmetrical.
+              </li>
+              <li>
+                <code>Anim</code> enables or disables animation for the part.
+              </li>
+            </ul>
+            <h4 class="helpSectionSubTitle">Color Tab</h4>
+            <ul class="helpList">
+              <li>
+                Enter a <code>color</code> seed and press <code>Load</code> to
+                restore a specific base palette.
+              </li>
+              <li>
+                <code>Recolor</code> rolls a fresh base color seed for the
+                current Glytchling.
+              </li>
+              <li>
+                <code>De$yn𝓬</code> assigns fully random per-part
+                <code>H</code>, <code>S</code>, and <code>L</code> values
+                outside the normal palette families.
+              </li>
+              <li>
+                <code>Crt</code> Toggles Glytchling monochrome terminal render
+                mode on or off.
+              </li>
+              <li><code>Invrt</code> Inverts the current Glytchling colors.</li>
+              <li>
+                <code>Restore</code> clears current color edits and returns to
+                the current color seed's default palette.
+              </li>
+              <h4 class="helpSectionSubTitle">Per Part Controls</h4>
+              <li>Hover a part to highlight it on the main Glytchling.</li>
+              <li>
+                Click a part to pin that highlight until you click it again.
+              </li>
+              <li>
+                Pinned part displays HSL sliders to manually change part color.
+              </li>
+            </ul>
+            <h4 class="helpSectionSubTitle">Identity Tab</h4>
+            <ul class="helpList">
+              <li>
+                Enter a <code>name</code> and press <code>Nickname</code> to
+                rename the Glytchling. Nicknames only persist when saved to the
+                specimen log.
+              </li>
+              <li>
+                <code>Restore</code> returns the current Glytchling to it's
+                generated seed name.
               </li>
             </ul>
           </div>
@@ -1535,7 +1929,7 @@
             type="button"
             aria-label="Open changelog"
           >
-            [ build v1.0.1 ]
+            [ build v1.1.0 ]
           </button>
         </div>
       </section>
@@ -1562,6 +1956,16 @@
         <div id="changelogContent" class="helpCopy">Loading changelog...</div>
       </section>
     </div>
+
+    <div id="fullscreenOverlay" class="fullscreenOverlay" aria-hidden="true">
+      <canvas
+        id="fullscreenCanvas"
+        class="fullscreenCanvas"
+        width="280"
+        height="320"
+      ></canvas>
+    </div>
+
     <script
       data-goatcounter="https://glytchlings.goatcounter.com/count"
       async

@@ -40,11 +40,15 @@ Like this project and want to help support? [Buy Me A Coffee!](https://buymeacof
 - Builds each Glytchling from modular parts like dome, core, node, bits, digits, and treads
 - Uses weighted randomness in several part regions so generated silhouettes feel varied without becoming pure noise
 - Generates a deterministic glitchy name from seeded syllable pools with occasional character mutations
-- Lets you inspect each generated trait individually
-- Supports per-part toggles for `on`, `sym`, and `flip`
-- Includes a local `Specimen Log` for adding favorite Glytchlings with their current trait and mode settings
-- Can copy a shareable URL with the current `shape` and `color` and any trait and mode settings
+- Generates a deterministic cry for each Glytchling based on its shape seed
+- Generates a deterministic `Type` from motion energy + cry family
+- Lets you inspect each generated part individually through `Shape`, `Color`, and `Identity` Inspector tabs
+- Supports per-part toggles for `on`, `sym`, `flip`, and `anim` where applicable
+- Supports per-part H/S/L color editing plus fully random `De$yn𝓬` palette overrides
+- Includes a local `Specimen Log` for adding favorite Glytchlings with their current Inspector settings
+- Can copy a shareable URL with the current `shape`, `color`, and Inspector settings
 - Can download the current render as a PNG
+- Fullscreen display mode can be enabled from Help Menu
 
 ## Generation Logic
 
@@ -67,49 +71,47 @@ The current URL is kept in sync like this:
 ?shape=123456&color=789012
 ```
 
-Opening that link later will restore the same Glytchling and color scheme.
+When part and color edits are present, the URL can also include per-part overrides
+and color state, such as:
 
-## Utility Menu (top icon bar)
+```text
+?shape=123456&color=789012&ca=do.h210_s62,di.l40,no.l28&iv=1
+```
 
-- help icon: opens the `System Help` menu with app functionality explanation
-- book icon: opens the `Specimen Log` and lets you save/load favorite Glytchlings in local browser storage
-- copy icon: copies the current Glytchling URL
-- download icon: downloads the current canvas as a PNG using a filesystem-safe version of the Glytchling name, unsafe characters replaced with '-'
+Opening that link later will restore the same Glytchling, color scheme, and
+shared color edits.
 
-## Control Panel
+## Controls
 
-### Shape
+### User Settings
 
-- `Load`: load a specific shape seed
+- `Mute Audio On Glytchling Generation`: saved user setting for automatic cry playback on spawn/load
+- `Enable Inspector Panel On Start`: saved user setting for whether the Inspector opens on refresh
+- `View Glytchling Fullscreen`: Enable Fullscreen display. Clicking anywhere or pressing Esc will exit fullscreen
 
-### Color
+### Spawn
 
-- `Load`: load a specific color seed
+- `SPAWN!`: generate a completely new shape and color seeded Glytchling with default Inspector toggles
 
-### Glytch
+### Glytchling Panel
 
-- `Spawn`: generate a new shape seed and color seed with current trait toggles and mode settings
-- `Color`: generate a new palette with current shape, trait toggles, and mode settings
-- `Cºrru_pt`: adds pure chaos, randomize trait toggles and some mode settings
-- `Restore`: return the trait/mode controls to a clean default state
+- `Magnifying Glass Icon`: open the `Inspector Panel`
+- `Name`: the generated Glytchling name or current nickname
+- `Type`: combined motion energy family + cry family, such as `Lively Warbler`
+- `Cry`: clickable waveform that plays the current Glytchling cry
+- `Book Icon`: open the `Specimen Log`
+- `Copy Icon`: copy a shareable URL with the current seeds and Inspector customizations
+- `Download Icon`: save the current rendered Glytchling as a PNG
+- `Bookmark Icon`: save the current Glytchling shape, color, and Inspector customizations to the log
 
-### Mode
-
-- `Sym`: toggle symmetry on all trait parts
-- `CRT`: render the Glytchling in a terminal-style CRT view
-- `Gap`: toggle the dome/core gap
-- `Pulse`: toggle dome motion
-- pause icon: freeze the current pulse frame for saving/downloading
-
-## Trait Panel
+## Inspector Panel
 
 The inspector shows:
 
-- `Name`
-- `Shape`
-- `Color`
-- `Trait Color` for currently selected trait
-- a bookmark icon for quick add to `Specimen Log`
+- `Shape` tab with anatomy values and toggles
+- `Color` tab with per-part color previews and active-part H/S/L controls
+- `Identity` tab with nickname editing and a specimen readout
+- an `X` button to hide the Inspector panel
 
 Each trait row includes:
 
@@ -118,8 +120,50 @@ Each trait row includes:
 - `on`: enable or disable that part
 - `sym`: mirror that part left/right
 - `flip`: swap the asymmetry side for that part
+- `anim`: enable or disable animation for that part where motion exists
 
 Hovering or clicking a trait highlights the corresponding area on the main Glytchling.
+
+In the `Color` tab, pinning a row expands `H`, `S`, and `L` sliders for that
+part. `INVRT` affects the visible result globally, while the part sliders edit
+the part's stored color values directly.
+
+Clicking the `Cry` waveform always plays the current Glytchling cry manually,
+even if automatic cry playback is muted.
+
+### Shape Tab
+
+- `Load`: load a specific shape seed
+- `Reshape`: generate a new shape seed while keeping the current color seed and current toggles
+- `Cºrru_pt`: randomize the current trait and animation toggles without changing the current seeds
+- `Sym`: toggle symmetry on all trait parts
+- `Anim`: toggle animation on all supported parts
+- `Restore`: return the current anatomy controls to a clean readable baseline
+
+### Color Tab
+
+- `Load`: load a specific color seed
+- `Recolor`: generate a new base palette seed while keeping the current shape
+- `De$yn𝓬`: assign fully random per-part H/S/L colors outside the palette-family system
+- `CRT`: render the Glytchling in a terminal-style CRT view
+- `INVRT`: invert the current specimen colors
+- `Restore`: clear color edits and return to the current color seed's default palette
+
+### Identity Tab
+
+- `Nickname`: apply a custom name to the current Glytchling
+- `Restore`: return the name to the current seed-generated default
+- shows `Shape Seed`, `Color Seed`, `Energy`, `Cry`, and canonical part values
+
+## Specimen Log
+
+- `Collection` shows the saved Glytchling count out of the 200 limit
+- `Last Action` shows the most recent log action
+- saved entries can be loaded back into the app by clicking them
+- `Trash Icon` deletes a saved Glytchling
+- `Upload Log` imports a saved specimen log JSON file and rebuilds thumbnails locally
+- `Download Log` exports the current specimen log as a JSON file
+- clearing browser storage or cache on the device may remove the saved collection
 
 ## Local Boot
 
