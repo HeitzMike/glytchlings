@@ -3,7 +3,7 @@ import {
   HEIGHT,
   DOME_HEIGHT,
   WIDTH,
-} from './glytchlingGenerator.js';
+} from './glytchlingGenerator.js?v=1.1.1';
 
 const PIXEL = 20;
 const GLYTCHLING_WIDTH = WIDTH * PIXEL;
