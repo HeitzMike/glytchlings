@@ -557,6 +557,61 @@ function pickFrom(seed, offset, values) {
   return values[index];
 }
 
+const LIFECYCLE_TRAIT_RANGES = {
+  telomere: [
+    { min: 1, max: 15, value: 'frayed' },
+    { min: 16, max: 35, value: 'worn' },
+    { min: 36, max: 65, value: 'stable' },
+    { min: 66, max: 85, value: 'robust' },
+    { min: 86, max: 100, value: 'pristine' },
+  ],
+  sociability: [
+    { min: 1, max: 25, value: 'hermit' },
+    { min: 26, max: 50, value: 'aloof' },
+    { min: 51, max: 75, value: 'chatty' },
+    { min: 76, max: 100, value: 'socialite' },
+  ],
+  socialBattery: [
+    { min: 1, max: 15, value: 'faint' },
+    { min: 16, max: 35, value: 'low' },
+    { min: 36, max: 65, value: 'charged' },
+    { min: 66, max: 85, value: 'brimming' },
+    { min: 86, max: 100, value: 'overcharged' },
+  ],
+  biome: [
+    { min: 1, max: 25, value: 'mire' },
+    { min: 26, max: 50, value: 'meadow' },
+    { min: 51, max: 75, value: 'static' },
+    { min: 76, max: 100, value: 'ridge' },
+  ],
+};
+
+function rollPercent(seed, offset) {
+  return Math.floor(random(seed, offset) * 100) + 1;
+}
+
+function valueFromRange(roll, ranges) {
+  return ranges.find(({ min, max }) => roll >= min && roll <= max)?.value;
+}
+
+function getLifecycleTraits(seed) {
+  return {
+    telomere: valueFromRange(
+      rollPercent(seed, 1000),
+      LIFECYCLE_TRAIT_RANGES.telomere,
+    ),
+    sociability: valueFromRange(
+      rollPercent(seed, 1010),
+      LIFECYCLE_TRAIT_RANGES.sociability,
+    ),
+    socialBattery: valueFromRange(
+      rollPercent(seed, 1020),
+      LIFECYCLE_TRAIT_RANGES.socialBattery,
+    ),
+    biome: valueFromRange(rollPercent(seed, 1030), LIFECYCLE_TRAIT_RANGES.biome),
+  };
+}
+
 // Names are also deterministic. They are generated from seeded syllable pools plus
 // a few optional "glitch" mutations so a saved seed always gets the same label.
 function generateName(seed) {
@@ -853,6 +908,7 @@ export function generateGlytchling(seed, options = {}) {
           flippedAttributes.treads,
         )
       : 'off',
+    ...getLifecycleTraits(seed),
   };
 
   const palette = generatePalette(paletteSeed, 3);

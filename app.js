@@ -10,7 +10,21 @@ const GLYTCHLING_WIDTH = WIDTH * PIXEL;
 const GLYTCHLING_HEIGHT = HEIGHT * PIXEL;
 const PART_PREVIEW_PIXEL = 6;
 const DRAW_ORDER = ['core', 'dome', 'treads', 'node', 'bits', 'digits'];
-const TRAIT_ORDER = ['dome', 'bits', 'node', 'core', 'digits', 'treads'];
+const ANATOMY_TRAIT_ORDER = [
+  'dome',
+  'bits',
+  'node',
+  'core',
+  'digits',
+  'treads',
+];
+const LIFECYCLE_TRAIT_ORDER = [
+  'telomere',
+  'sociability',
+  'socialBattery',
+  'biome',
+];
+const TRAIT_ORDER = [...ANATOMY_TRAIT_ORDER, ...LIFECYCLE_TRAIT_ORDER];
 
 // Cache the DOM once at startup. This file owns the browser-specific layer:
 // UI state, rendering, inspector updates, and animation.
@@ -2000,11 +2014,12 @@ async function playCry(ignoreMute = false) {
 // That keeps the row controls, labels, current values, and shareable URL aligned
 // with the active deterministic seed state.
 function formatPartLabel(partName) {
-  return `${partName.charAt(0).toUpperCase()}${partName.slice(1)}:`;
+  const spacedName = partName.replace(/([a-z])([A-Z])/g, '$1 $2');
+  return `${spacedName.charAt(0).toUpperCase()}${spacedName.slice(1)}:`;
 }
 
 function renderShapeInspectorRows(traits) {
-  for (const label of TRAIT_ORDER) {
+  for (const label of ANATOMY_TRAIT_ORDER) {
     if (!(label in traits)) continue;
 
     const value = traits[label];
@@ -2099,7 +2114,7 @@ function renderShapeInspectorRows(traits) {
 function renderColorInspectorRows() {
   const expandedPart = pinnedPart;
 
-  for (const label of TRAIT_ORDER) {
+  for (const label of ANATOMY_TRAIT_ORDER) {
     const row = document.createElement('li');
     row.className = 'traitRow';
     row.dataset.part = label;
