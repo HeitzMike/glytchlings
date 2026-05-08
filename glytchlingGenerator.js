@@ -584,6 +584,13 @@ const LIFECYCLE_TRAIT_RANGES = {
     { min: 51, max: 75, value: 'static' },
     { min: 76, max: 100, value: 'ridge' },
   ],
+  bond: [
+    { min: 1, max: 20, value: 'distant' },
+    { min: 21, max: 40, value: 'cautious' },
+    { min: 41, max: 60, value: 'open' },
+    { min: 61, max: 80, value: 'seeking' },
+    { min: 81, max: 100, value: 'eager' },
+  ],
 };
 
 function rollPercent(seed, offset) {
@@ -609,6 +616,7 @@ function getLifecycleTraits(seed) {
       LIFECYCLE_TRAIT_RANGES.socialBattery,
     ),
     biome: valueFromRange(rollPercent(seed, 1030), LIFECYCLE_TRAIT_RANGES.biome),
+    bond: valueFromRange(rollPercent(seed, 1040), LIFECYCLE_TRAIT_RANGES.bond),
   };
 }
 
