@@ -3,7 +3,7 @@ import {
   HEIGHT,
   DOME_HEIGHT,
   WIDTH,
-} from './glytchlingGenerator.js?v=1.1.2';
+} from './glytchlingGenerator.js?v=1.1.3';
 
 const PIXEL = 20;
 const GLYTCHLING_WIDTH = WIDTH * PIXEL;
@@ -22,7 +22,6 @@ const LIFECYCLE_TRAIT_ORDER = [
   'telomere',
   'sociability',
   'socialBattery',
-  'biome',
   'bond',
 ];
 const TRAIT_ORDER = [...ANATOMY_TRAIT_ORDER, ...LIFECYCLE_TRAIT_ORDER];
